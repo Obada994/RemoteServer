@@ -13,8 +13,9 @@ public class Client {
     PrintWriter output;// #2  are only for communication
     Socket socket;// #3
 
-    static String folder; // location of the client's folder on the server
-    static boolean root = false;
+    String folder; // location of the client's folder on the server
+    boolean root = false;
+    String ID;
 
 public Client(Socket socket)
 {

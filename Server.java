@@ -30,9 +30,13 @@ public Server(int port)
  */
 public Client auth(Socket connection)
 {
-    try(OutputStream out = connection.getOutputStream(); InputStream in = connection.getInputStream())
+    try(PrintWriter out = new PrintWriter(connection.getOutputStream(),true);
+        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream())))
     {
-
+        out.println("Answer your security question's answer: ");
+        String str = in.readLine();
+        if(str.equals("RIGHTANSWER"))
+            return new Client(connection);
     }
     catch(EOFException e)
     {
@@ -142,10 +146,19 @@ public void run()
          {
              System.out.println("Listening for connections....");
              try {
-                 clients.add(new Client(serverSocket.accept())); // will work on authentication later
-                 System.out.println("Client connected..." + clients.get(clients.size()-1).socket.getInetAddress());// get the IP address of the connected client
-                 new Thread(){
-                     public void run(){listen(clients.get(clients.size()-1));}}.start();//listen to the newly connected client and execute
+                 Client client;
+                 if((client = auth(serverSocket.accept()))!=null) {
+                     clients.add(client); // will work on authentication later
+                     System.out.println("Client connected..." + clients.get(clients.size() - 1).socket.getInetAddress());// get the IP address of the connected client
+                     new Thread() {
+                         public void run() {
+                             listen(clients.get(clients.size() - 1));
+                         }
+                     }.start();//listen to the newly connected client and execute
+                 }else
+                 {
+                    System.out.println("Connection refused");
+                 }
              } catch (IOException e)
              {
                  e.printStackTrace();
