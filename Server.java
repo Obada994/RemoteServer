@@ -11,13 +11,17 @@ public class Server
     static ServerSocket serverSocket;
 
     static ArrayList<Client> clients;
-
+/*
+    Start the server on a specific port
+ */
 public Server(int port)
 {
     try {
         serverSocket = new ServerSocket(port);
     } catch (IOException e) {
         System.err.println("Port is in use");
+        System.out.println("Starting the server on port: "+port+1 );
+        new Server(port+1);
     }
 
 }
@@ -64,33 +68,76 @@ public void getFile(String location, Socket socket)
     }
 }
 /*
-    list all available files in a directory
+    send a msg to a client
  */
-public void ls(Client client,String location)//index of the client
+public void sendMsg(Client client)
 {
 
 }
-public static void run()
+/*
+    Encrypt an object(msg,file...etc) before sending with AES 128 bit encryption
+ */
+public static void encrypt(Object object)
+{}
+/*
+    Decrypt a received object from a client
+ */
+public static void decrypt(Object object)
+{}
+/*
+    list all available files in a directory
+ */
+public void ls(Client client,String location)
+{}
+/*
+    Listen to a client
+ */
+public void listen(Client client)
 {
-    Server server = new Server(3425); // start server
+    String request;
+    while((request=client.getRequest())!="")
+    {
+        handle(request);
+    }
+}
+/*
+    handling a clients requests
+ */
+public void handle(String str)
+{
+
+}
+/*
+    The main run method
+ */
+public void run()
+{
+//***********************************************************************************************\\
     new Thread()// thread waiting for connections
     {
      public void run()
      {
          while(true)
          {
-             System.out.println("Listening for clients....");
+             System.out.println("Listening for connections....");
              try {
-                 clients.add(new Client(serverSocket.accept()));
-                 System.out.println("Client connected..." + clients.get(clients.size()-1).socket.getInetAddress());//get the IP address of the connected client
-             } catch (IOException e) {
+                 clients.add(new Client(serverSocket.accept())); // will work on authentication later
+                 System.out.println("Client connected..." + clients.get(clients.size()-1).socket.getInetAddress());// get the IP address of the connected client
+                 new Thread(){
+                     public void run(){listen(clients.get(clients.size()-1));}}.start();//listen to the newly connected client and execute
+             } catch (IOException e)
+             {
                  e.printStackTrace();
              }
          }
      }
-    }.start();
+    }.start(); // A thread to listen for connections
+//***************************************************************************************************\\
 
 }
 public static void main(String[] args)
-{}
+{
+    Server server = new Server(3245);
+    server.run();// example
+}
 }

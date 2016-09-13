@@ -13,8 +13,8 @@ public class Client {
     PrintWriter output;// #2  are only for communication
     Socket socket;// #3
 
-    String folder;//location of the client's folder on the server
-    boolean root=false;
+    static String folder; // location of the client's folder on the server
+    static boolean root = false;
 
 public Client(Socket socket)
 {
@@ -25,6 +25,17 @@ public Client(Socket socket)
     } catch (IOException e) {
         e.printStackTrace();
     }
+}
+public String getRequest()
+{
+    String str;
+    try {
+        if((str=input.readLine())!=null)
+            return str;
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+    return "";
 }
 public void close() throws IOException {
     input.close();
