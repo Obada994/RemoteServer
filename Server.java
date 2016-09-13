@@ -33,7 +33,7 @@ public Client auth(Socket connection)
     try(PrintWriter out = new PrintWriter(connection.getOutputStream(),true);
         BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream())))
     {
-        out.println("Answer your security question's answer: ");
+        out.println("Answer your security question: ");
         String str = in.readLine();
         if(str.equals("RIGHTANSWER"))
             return new Client(connection);
