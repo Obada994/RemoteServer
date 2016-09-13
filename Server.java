@@ -26,6 +26,23 @@ public Server(int port)
 
 }
 /*
+    Accept or decline a client connection "Connection in this phase is not encrypted"
+ */
+public Client auth(Socket connection)
+{
+    try(OutputStream out = connection.getOutputStream(); InputStream in = connection.getInputStream())
+    {
+
+    }
+    catch(EOFException e)
+    {
+
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+    return null;
+}
+/*
     send any kinda file to a client
  */
 public void sendFile(String location,Socket socket)
