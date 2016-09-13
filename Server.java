@@ -4,7 +4,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 
 /**
- * Created by obada on 2016-09-12.
+ * Created by Obada on 2016-09-12.
  */
 public class Server
 {
@@ -30,7 +30,7 @@ public Server(int port)
  */
 public void sendFile(String location,Socket socket)
 {
-    File file = new File(location);
+    File file = new File(location);// will encrypt later
     byte[] bytes = new byte[64*1024];
     try (InputStream input = new FileInputStream(file);
          OutputStream output = socket.getOutputStream())
@@ -51,7 +51,7 @@ public void sendFile(String location,Socket socket)
  */
 public void getFile(String location, Socket socket)
 {
-    File file = new File(location);
+    File file = new File(location);//will decrypt later
     byte[] bytes = new byte[64*1024];
     try (InputStream input = socket.getInputStream();
          OutputStream output = new FileOutputStream(file))
@@ -70,20 +70,24 @@ public void getFile(String location, Socket socket)
 /*
     send a msg to a client
  */
-public void sendMsg(Client client)
+public void sendMsg(Client client,String msg)
 {
-
+    client.sendMsg(msg);
 }
 /*
     Encrypt an object(msg,file...etc) before sending with AES 128 bit encryption
  */
-public static void encrypt(Object object)
-{}
+public static Object encrypt(Object object)// code later
+{
+    return object;
+}
 /*
     Decrypt a received object from a client
  */
-public static void decrypt(Object object)
-{}
+public static Object decrypt(Object object)// code later
+{
+    return object;
+}
 /*
     list all available files in a directory
  */

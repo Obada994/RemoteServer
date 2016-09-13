@@ -21,7 +21,7 @@ public Client(Socket socket)
     this.socket = socket;
     try {
         input = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
-        output = new PrintWriter(this.socket.getOutputStream());
+        output = new PrintWriter(this.socket.getOutputStream(),true); // true for auto flushing
     } catch (IOException e) {
         e.printStackTrace();
     }
@@ -31,11 +31,16 @@ public String getRequest()
     String str;
     try {
         if((str=input.readLine())!=null)
-            return str;
+            return (String) Server.decrypt(str);
     } catch (IOException e) {
         e.printStackTrace();
     }
     return "";
+}
+public void sendMsg(String msg)
+{
+    String encryptedMsg = (String) Server.encrypt(msg);
+    output.println(encryptedMsg);
 }
 public void close() throws IOException {
     input.close();
