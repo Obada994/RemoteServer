@@ -1,6 +1,14 @@
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 /**
@@ -30,18 +38,21 @@ public Server(int port)
  */
 public Client auth(Socket connection)
 {
-    try(PrintWriter out = new PrintWriter(connection.getOutputStream(),true);
-        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream())))
+    try(OutputStream out = connection.getOutputStream();
+        InputStream in = connection.getInputStream())
     {
-        out.println("Answer your security question: ");
-        String str = in.readLine();
-        if(str.equals("RIGHTANSWER"))
+        String random="";
+        out.write(encrypt(random.getBytes()));//will generate a random string later
+        String answer="";
+        if(answer.equals(random))
             return new Client(connection);
     }
     catch(EOFException e)
     {
 
     } catch (IOException e) {
+        e.printStackTrace();
+    } catch (Exception e) {
         e.printStackTrace();
     }
     return null;
@@ -96,18 +107,36 @@ public void sendMsg(Client client,String msg)
     client.sendMsg(msg);
 }
 /*
-    Encrypt an object(msg,file...etc) before sending with AES 128 bit encryption
+    Encrypt an object(msg,file...etc) with AES 128 bit encryption
  */
-public static Object encrypt(Object object)// code later
+public static byte[] encrypt(byte[] Data) throws Exception
 {
-    return object;
+    Key key = generateKey();
+    Cipher c = Cipher.getInstance("AES");
+    c.init(Cipher.ENCRYPT_MODE, key);
+    byte[] encBytes = c.doFinal(Data);
+    return encBytes;
 }
 /*
-    Decrypt a received object from a client
+    Decrypt a received byte array from a client
  */
-public static Object decrypt(Object object)// code later
+public static byte[] decrypt(byte[] encryptedData) throws Exception
 {
-    return object;
+    Key key = generateKey();
+    Cipher c = Cipher.getInstance("AES");
+    c.init(Cipher.DECRYPT_MODE, key);
+    byte[] decValue = c.doFinal(encryptedData);
+    return decValue;
+}
+/*
+    Generate a key for your AES encryption
+ */
+private static Key generateKey()
+{
+    //A 16 bytes/128bits key, put your own secret key here
+    String Key = "secret1234ewrt54";
+    Key key = new SecretKeySpec(Key.getBytes(), "AES");
+    return key;
 }
 /*
     list all available files in a directory
