@@ -18,31 +18,34 @@ public class Client {
     InputStream input; // #1
     OutputStream output;// #2
     Socket socket;// #3
-
-    String folder; // location of the client's folder on the server
-    boolean root = false;
-    String ID;
+//................................testing only
+    static Socket sock;
+    static OutputStream out=null;
+//.......................................................................
+    String folder; // will be user later on
+    boolean root = false;// will be user later on
+    String ID;// will be user later on
 
 public Client(Socket socket)
 {
     this.socket = socket;
     try {
         input = socket.getInputStream();
-        output = socket.getOutputStream(); // true for auto flushing
+        output = socket.getOutputStream();
     } catch (IOException e) {
         e.printStackTrace();
     }
 }
 
-    //A client sample code to connect and test out our server
+    // A client sample code to connect and test out our server
     public static void main(String[] args) throws Exception {
         System.out.println("trying to connect");
-        Socket socket = new Socket("localhost", 3245);
+        sock = new Socket("localhost", 3245);
         System.out.println("connected!");
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
         String request = "";
-        InputStream input = socket.getInputStream();
-        OutputStream output = socket.getOutputStream();
+        InputStream input = sock.getInputStream();
+        out = sock.getOutputStream();
         //....................................
         while ((request = in.readLine()) != null) {
             //decode the msg into base64
@@ -50,29 +53,25 @@ public Client(Socket socket)
             //encrypt the byte array
             byte[] encrypted = Server.encrypt(bytesEncoded);
             //send the encrypted array
-            output.write(encrypted);
-            if (request.equals("hi")) {
-                //send a file
-                File file = new File("/home/obada/Desktop/Java.pdf");
-                byte[] temp = new byte[1024 * 1024];
-                ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-                byte[] fileBytes;
-                try (InputStream i = new FileInputStream(file);) {
+            out.write(encrypted);
+            if (request.equals("hi"))
+            {
+
+            } else if (request.equals("hi2"))
+            {
+                File file = new File("/home/obada/Desktop/Java.zip");
+                ObjectOutputStream outO = new ObjectOutputStream(out);
+                try (InputStream inFile = new FileInputStream(file)) {
+                    byte[] bytes=new byte[1024*64];
                     int count;
-                    while ((count = i.read(temp)) > 0) {
-                        //create a sub array of the full array
-                        byte[] tmp = Arrays.copyOfRange(temp, 0, count);
-                        //store the array in buffer
-                        buffer.write(tmp);
+                    while ((count=inFile.read(bytes))>0)
+                    {
+                        byte[] fileBytes = Arrays.copyOfRange(bytes,0,count);
+                        byte[] encrypt = Server.encrypt(fileBytes);
+                        outO.writeObject(encrypt);
                     }
-                    System.out.println("done with buffering");
-                    //store the whole file bytes in one array
-                    fileBytes = buffer.toByteArray();
-                    //encrypt it
-                    byte[] encrytped = Server.encrypt(fileBytes);
-                    //send it
-                    output.write(encrytped);
-                    output.write(new byte[]{-1});
+                    outO.writeObject(null);
+                    System.out.println("file sent");
 
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
@@ -81,14 +80,6 @@ public Client(Socket socket)
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            } else if (request.equals("hi2")) {
-                File file = new File("/home/obada/Desktop/Java.pdf");
-                final FileChannel channel = new FileInputStream(file).getChannel();
-                MappedByteBuffer buff = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
-                byte[] fileBytes = buff.array();
-                byte[] encr = Server.encrypt(fileBytes);
-                output.write(encr);
-                output.write(new byte[]{-1});
             }
         }
     }
@@ -99,7 +90,7 @@ public Client(Socket socket)
     public String getRequest() throws Exception
 {
     int count = 0;
-    byte[] temp = new byte[100];
+    byte[] temp = new byte[32*1024];
     if ((count = input.read(temp)) > 0) {
         byte[] received = Arrays.copyOfRange(temp, 0, count);
         //decrypt the byte array
@@ -130,7 +121,7 @@ public Client(Socket socket)
      */
     public void listen()
 {
-    String request = "";
+    String request;
     try {
         while (!(request = getRequest()).equals("")) {
             switch (request) {
@@ -141,7 +132,7 @@ public Client(Socket socket)
                     break;
                 case "hi2":
                     System.out.println("listening for a file");
-                    getFile("/home/obada/Desktop/new.pdf");
+                    getFile("/home/obada/Desktop/new.zip");
                     break;
                 default:
                     System.out.println(request);
@@ -154,25 +145,35 @@ public Client(Socket socket)
 }
 
     /*
-        send any kinda file to a client
+        send files to clients Encrypted with AES 128 bit
      */
-    public void sendFile(String location) {
+    public void sendFile(String location)
+    {
+        //file to send
         File file = new File(location);
-        byte[] bytes = new byte[64 * 1024];
-        //the end signal of a file
-        byte end = -1;
-        try (InputStream input = new FileInputStream(file);) {
-            int count;
-            while ((count = input.read(bytes)) > 0) {
-                //create a sub array of the full array
-                bytes = Arrays.copyOfRange(bytes, 0, count);
-                //encrypt it
-                byte[] encrytped = Server.encrypt(bytes);
-                //send it
-                output.write(encrytped);
+        //wrap OutputStream in an ObjectOutputStream
+        ObjectOutputStream outO;
+        //bytes array to read bytes from the file
+        byte[] bytes=new byte[1024*64];
+        //count of bytes read from the file
+        int count;
+        try (InputStream inFile = new FileInputStream(file))
+        {
+            //init ObjectOutputStream
+            outO = new ObjectOutputStream(output);
+            //write byte arrays to a the output stream
+            while ((count=inFile.read(bytes))>0)
+            {
+                //an array of the bytes read from the file
+                byte[] fileBytes = Arrays.copyOfRange(bytes,0,count);
+                //encrypted array
+                byte[] encrypted = Server.encrypt(fileBytes);
+                //write the encrypted array as an object
+                outO.writeObject(encrypted);
             }
-            //send the end signal
-            output.write(end);
+            //End of file signal
+            outO.writeObject(null);
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -181,44 +182,32 @@ public Client(Socket socket)
             e.printStackTrace();
         }
     }
-
     /*
-    get a file from a client
-    bug here with encryption: when you get the encrypted byte array divided in 2 arrays it's not possible to decrypt it
-    temp solution is to make the buffered byte array as big as the file we're sending or bigger
- */
-    public void getFile(String location) {
-        System.out.println("getting a file");
+       receive files from the clients
+     */
+    public void getFile(String location)
+    {
+        //performance testing
+        long startTime = System.currentTimeMillis();
+        //file to receive
         File file = new File(location);
-        byte[] temp = new byte[1024 * 1024];
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        byte[] fileBytes;
-        try (OutputStream out = new FileOutputStream(file)) {
-            int count;
-            while ((count = input.read(temp)) > 0) {
-                //done for testing
-                System.out.println(count);
-                //tmp array with the downloaded bytes
-                byte[] tmp = Arrays.copyOfRange(temp, 0, count);
-                //if the end of the stream is the end signal then do the last iteration and quit the loop or you'll stuck here forever
-                if (tmp[tmp.length - 1] == -1) {
-                    System.out.println("last array of the file");
-                    //create a new array without the signal value
-                    tmp = Arrays.copyOfRange(tmp, 0, count - 1);
-                    //add it to buffer
-                    buffer.write(tmp);
-                    //add all the bytes to one array p.s: it's encrypted
-                    fileBytes = buffer.toByteArray();
-                    //decrypt it
-                    byte[] decrypted = Server.decrypt(fileBytes);
-                    //write it to the file
-                    out.write(decrypted);
-                    //quit the while loop
-                    break;
-                }
-                buffer.write(tmp);
+        //wrap InputStream in ObjectInputStream
+        ObjectInputStream in = null;
+        try (OutputStream out = new FileOutputStream(file))
+        {
+            //init ObjectInputStream
+            in = new ObjectInputStream(input);
+            byte[] decrypted;
+            byte[] bytes;
+            //read the byte arrays of the sent file
+            while ((bytes= (byte[]) in.readObject())!=null)
+            {
+                //decrypt them
+                decrypted=Server.decrypt(bytes);
+                //write the decrypted arrays to the file
+                out.write(decrypted);
             }
-            System.out.println("file received");
+            //close the stream
             out.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -227,11 +216,15 @@ public Client(Socket socket)
         } catch (Exception e) {
             e.printStackTrace();
         }
+        //performance testing
+        long stopTime = System.currentTimeMillis();
+        long elapsedTime = stopTime - startTime;
+        System.out.println("getFile took: "+elapsedTime);
     }
 
     public void close() throws IOException {
     input.close();
     output.close();
     socket.close();
-}
+    }
 }
