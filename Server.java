@@ -134,12 +134,12 @@ public void run()
          {
              try {
                  System.out.println("listening for a client");
-                 Client cleint = new Client(serverSocket.accept());
+                 Client client = new Client(serverSocket.accept());
                  System.out.println("client connected");
                  new Thread()
                  {
                      public void run() {
-                         cleint.listen();
+                         client.listen();
                      }
                  }.start();
              } catch (IOException e) {
