@@ -9,11 +9,13 @@ import java.util.Base64;
 /**
  * Created by Obada on 2016-09-12.
  */
-public class Client {
+ class Client {
 
     private InputStream input;
     private OutputStream output;
     private Socket socket;
+
+    private int id;
 //................................Created for testing only
 //   private static Socket sock;
 //    private static OutputStream out=null;
@@ -22,12 +24,13 @@ public class Client {
 //    boolean root = false;// will be user later on
 //    String ID;// will be user later on
 
-public Client(Socket socket)
+ Client(Socket socket,int id)
 {
     this.socket = socket;
     try {
         input = socket.getInputStream();
         output = socket.getOutputStream();
+        this.id = id;
     } catch (IOException e) {
         e.printStackTrace();
     }
@@ -35,7 +38,7 @@ public Client(Socket socket)
     /*
        Receive a string encrypted with AES and encoded with base64
      */
-    private String getRequest() throws Exception
+    String getRequest() throws Exception
 {
     int count;
     byte[] bytes = new byte[32*1024];
@@ -56,7 +59,7 @@ public Client(Socket socket)
        Send a string encoded with base64 and encrypted with AES 128 bit
      */
     //will change to public access if I had to send messages from the Server class
-    private void sendMsg(String msg) throws Exception {
+    void sendMsg(String msg) throws Exception {
         //decode the msg into base64
         byte[] bytesEncoded = Base64.getEncoder().encode(msg.getBytes());
         //encrypt the byte array
@@ -174,12 +177,14 @@ public Client(Socket socket)
     /*
         close the connection for this client
      */
-    private void close() throws IOException
+    void close() throws IOException
     {
     input.close();
     output.close();
     socket.close();
     }
+    int getId()
+    {return id;}
 
     // A client sample code to connect and test out our server
 //    public static void main(String[] args) throws Exception {

@@ -19,7 +19,9 @@ public class Server
 {
     static ServerSocket serverSocket;
 
-    static ArrayList<Client> clients;
+    static Client[] clients;
+
+    static int id;
 /*
     Start the server on a specific port
  */
@@ -27,6 +29,8 @@ public Server(int port)
 {
     try {
         serverSocket = new ServerSocket(port);
+        id = 0;
+        clients = new Client[10];
     } catch (IOException e) {
         System.err.println("Port is in use");
         System.out.println("Starting the server on port: "+port+1 );
@@ -69,7 +73,57 @@ private static Key generateKey()
     Key key = new SecretKeySpec(Key.getBytes(), "AES");
     return key;
 }
+/*
+    Accept or decline a client connection "Connection in this phase is not encrypted"
+ */
+public Client auth(Socket connection) throws Exception {
+    Client client = new Client(connection, id);
+    String msg = "weShouldGetTheStringDecrypted";
+    client.sendMsg(msg);
+    String reply = client.getRequest();
+    //auth succeed increment id
+    if (reply.equals(msg))
+    {
+        id++;
+        return client;
+    }
+    client.close();
+    return null;
+}
+    /*
+        The main run method
+     */
+public void run()
+{
+//***********************************************************************************************\\
+    new Thread()// thread waiting for connections
+    {
+     public void run()
+     {
+         //listen for connections
+         while(true)
+             try {
+                 System.out.println("listening for a client");
+                 Client client = null;
+                 //we'll keep waiting until auth returns a client
+                 while (client == null)
+                     client = auth(serverSocket.accept());
+                 System.out.println("client connected");
+                 final Client clientFinal = client;
+                 clients[clientFinal.getId()] = clientFinal;
+                 new Thread() {
+                     public void run() {
+                         clientFinal.listen();
+                     }
+                 }.start();
+             } catch (Exception e) {
+                 e.printStackTrace();
+             }
+     }
+    }.start(); // A thread to listen for connections
+//***************************************************************************************************\\
 
+}
     public static void main(String[] args) {
         Server server = new Server(3245);
         server.run();// example
@@ -90,65 +144,4 @@ private static Key generateKey()
 
     }
 
-/*
-    Accept or decline a client connection "Connection in this phase is not encrypted"
- */
-public Client auth(Socket connection)
-{
-    try (OutputStream out = connection.getOutputStream();
-         InputStream in = connection.getInputStream())
-    {
-        String random = "";
-        out.write(encrypt(random.getBytes()));//will generate a random string later
-        String answer = "";
-        if (answer.equals(random))
-            return new Client(connection);
-    } catch (EOFException e) {
-
-    } catch (IOException e) {
-        e.printStackTrace();
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-    return null;
-}
-
-/*
-    list all available files in a directory
- */
-public void ls(Client client, String location) {
-}
-
-    /*
-        The main run method
-     */
-public void run()
-{
-//***********************************************************************************************\\
-    new Thread()// thread waiting for connections
-    {
-     public void run()
-     {
-         //listen for connections
-         while(true)
-         {
-             try {
-                 System.out.println("listening for a client");
-                 Client client = new Client(serverSocket.accept());
-                 System.out.println("client connected");
-                 new Thread()
-                 {
-                     public void run() {
-                         client.listen();
-                     }
-                 }.start();
-             } catch (IOException e) {
-                 e.printStackTrace();
-             }
-         }
-     }
-    }.start(); // A thread to listen for connections
-//***************************************************************************************************\\
-
-}
 }
