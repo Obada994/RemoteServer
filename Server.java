@@ -116,6 +116,7 @@ public void run()
                          clientFinal.listen();
                      }
                  }.start();
+                 System.out.println("Server: client listening started");
              } catch (Exception e) {
                  e.printStackTrace();
              }
@@ -124,9 +125,9 @@ public void run()
 //***************************************************************************************************\\
 
 }
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         Server server = new Server(3245);
-        server.run();// example
+        server.run();
 //    byte[] tmp = new byte[]{1,2,3};
 //    byte[] tmp2 = new byte[]{4,5,6};
 //    byte[] res=null;

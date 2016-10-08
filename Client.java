@@ -15,7 +15,7 @@ import java.util.Base64;
     private OutputStream output;
     private Socket socket;
 
-    private int id;
+    private  int id;
 //................................Created for testing only
 //   private static Socket sock;
 //    private static OutputStream out=null;
@@ -23,8 +23,7 @@ import java.util.Base64;
 //    String folder; // will be user later on
 //    boolean root = false;// will be user later on
 //    String ID;// will be user later on
-
- Client(Socket socket,int id)
+    Client(Socket socket,int id)
 {
     this.socket = socket;
     try {
@@ -97,6 +96,7 @@ import java.util.Base64;
 
             default:
                 System.out.println(request);
+                //echo back, done for auth
 
         }
     } catch (Exception e) {
@@ -179,52 +179,25 @@ import java.util.Base64;
      */
     void close() throws IOException
     {
-    input.close();
     output.close();
+    input.close();
     socket.close();
     }
     int getId()
     {return id;}
 
     // A client sample code to connect and test out our server
-//    public static void main(String[] args) throws Exception {
-//        System.out.println("trying to connect");
-//        sock = new Socket("localhost", 3245);
-//        System.out.println("connected!");
-//        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-//        String request = "";
-////        InputStream input = sock.getInputStream();
-//        out = sock.getOutputStream();
-//        //....................................
-//        while ((request = in.readLine()) != null) {
-//            //decode the msg into base64
-//            byte[] bytesEncoded = Base64.getEncoder().encode(request.getBytes());
-//            //encrypt the byte array
-//            byte[] encrypted = Server.encrypt(bytesEncoded);
-//            //send the encrypted array
-//            out.write(encrypted);
-//            if (request.equals("hi"))
-//            {
-//
-//            } else if (request.equals("hi2"))
-//            {
-//                File file = new File("/home/obada/Desktop/Java.zip");
-//                ObjectOutputStream outO = new ObjectOutputStream(out);
-//                try (InputStream inFile = new FileInputStream(file)) {
-//                    byte[] bytes = new byte[1024 * 64];
-//                    int count;
-//                    while ((count = inFile.read(bytes)) > 0) {
-//                        byte[] fileBytes = Arrays.copyOfRange(bytes, 0, count);
-//                        byte[] encrypt = Server.encrypt(fileBytes);
-//                        outO.writeObject(encrypt);
-//                    }
-//                    outO.writeObject(null);
-//                    System.out.println("file sent");
-//
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }
-//    }
+    public static void main(String[] args) throws Exception {
+        System.out.println("trying to connect");
+        Socket sock = new Socket("localhost", 3245);
+        Client client = new Client(sock,0);
+        //auth with server
+        client.sendMsg(client.getRequest());
+        new Thread(){public void run(){client.listen();}}.start();
+        System.out.println("connected!");
+        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+        String request;
+        while((request=in.readLine())!=null)
+            client.sendMsg(request);
+    }
 }
