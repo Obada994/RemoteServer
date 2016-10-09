@@ -5,31 +5,33 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Scanner;
 
 /**
  * Created by Obada on 2016-09-12.
  */
- class Client {
+ class Client
+{
 
     private InputStream input;
     private OutputStream output;
     private Socket socket;
-
     private  int id;
-//................................Created for testing only
-//   private static Socket sock;
-//    private static OutputStream out=null;
-//...............................
-//    String folder; // will be user later on
-//    boolean root = false;// will be user later on
-//    String ID;// will be user later on
+    private File folder;
+
     Client(Socket socket,int id)
 {
-    this.socket = socket;
+    connect(socket);
+    this.id = id;
+    folder = new File("/home/obada/Desktop/client"+id);
+    folder.mkdir();
+}
+private void connect(Socket sock)
+{
+    this.socket = sock;
     try {
         input = socket.getInputStream();
         output = socket.getOutputStream();
-        this.id = id;
     } catch (IOException e) {
         e.printStackTrace();
     }
@@ -40,7 +42,7 @@ import java.util.Base64;
     String getRequest() throws Exception
 {
     int count;
-    byte[] bytes = new byte[32*1024];
+    byte[] bytes = new byte[64*1024];
     if ((count = input.read(bytes)) > 0) {
         byte[] received = Arrays.copyOfRange(bytes, 0, count);
         //decrypt the byte array
@@ -73,37 +75,48 @@ import java.util.Base64;
     void listen()
 {
     String request;
+    String next;
+    Scanner scan;
     try {
-        while (!(request = getRequest()).equals("")) switch (request) {
-            //sending a file to the client
-            case "get":
-                //the next String contain the path to the file
-                sendFile(getRequest());
-                break;
-            //list the files the server has in this client's folder
-            case "ls":
-                //will work on the runtime command later..
-                sendMsg("will work on this later....");
-                break;
-            //getting a file from the client
-            case "upload":
-                getFile("will work on specify a working dir for this client later...");
-                break;
-            //close connection
-            case "close":
-                close();
-                break;
+        while (!(request = getRequest()).equals(""))
+        {
+            scan = new Scanner(request);
+            next = scan.next();
+            switch (next)
+            {
+                //sending a file to the client
+                case "get":
+                    request = request.substring(4,request.length());
+                    //send a notification for the caller client to receive the file
+                    sendMsg("upload "+request);
+                    //the next String contain the path to the file
+                    sendFile(scan.next());
+                    break;
+                //list the files the server has in this client's folder
+                case "ls":
+                    //will work on the runtime command later..
+                    sendMsg("will work on this later....");
+                    break;
+                //getting a file from the client
+                case "upload":
+                    scan.next();
+                    getFile("/home/obada/Desktop/client"+id+"/"+scan.next()+"."+scan.next());
+                    break;
+                //close connection
+                case "close":
+                    close();
+                    break;
 
-            default:
-                System.out.println(request);
-                //echo back, done for auth
+                default:
+                    System.out.println(request);
 
+            }
+            scan.close();
         }
     } catch (Exception e) {
         e.printStackTrace();
     }
 }
-
     /*
         send files to clients Encrypted with AES 128 bit
      */
@@ -113,7 +126,7 @@ import java.util.Base64;
         // wrap OutputStream in an ObjectOutputStream
         ObjectOutputStream outO;
         //bytes array to read bytes from the file
-        byte[] bytes=new byte[1024*64];
+        byte[] bytes=new byte[1024*1024];
         //count of bytes read from the file
         int count;
         try (FileInputStream inFile = new FileInputStream(file))
@@ -142,11 +155,12 @@ import java.util.Base64;
          */
     private void getFile(String location)
     {
+        System.out.println("getting a file");
         //performance testing
         long startTime = System.currentTimeMillis();
         //file to receive
         File file = new File(location);
-        //wrap InputStream   in ObjectInputStream
+        //wrap InputStream in an ObjectInputStream
         ObjectInputStream in;
         try (OutputStream out = new FileOutputStream(file))
         {
@@ -157,6 +171,7 @@ import java.util.Base64;
             //read the byte arrays of the sent file
             while ((bytes= (byte[]) in.readObject())!=null)
             {
+                System.out.println("reading...");
                 //decrypt them
                 decrypted=Server.decrypt(bytes);
                 //write the decrypted arrays to the file
@@ -164,6 +179,7 @@ import java.util.Base64;
             }
             //close the FileOutputStream
             out.close();
+            System.out.println("got the file");
         } catch (Exception e)
         {
             e.printStackTrace();
@@ -190,14 +206,38 @@ import java.util.Base64;
     public static void main(String[] args) throws Exception {
         System.out.println("trying to connect");
         Socket sock = new Socket("localhost", 3245);
-        Client client = new Client(sock,0);
+        Client client = new Client(sock, 0);
+        System.out.println("connected!");
         //auth with server
         client.sendMsg(client.getRequest());
-        new Thread(){public void run(){client.listen();}}.start();
-        System.out.println("connected!");
+        new Thread() {
+            public void run() {
+                client.listen();
+            }
+        }.start();
+        System.out.println("Listening....");
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
         String request;
-        while((request=in.readLine())!=null)
-            client.sendMsg(request);
+        String next;
+        Scanner scan;
+        while ((request = in.readLine()) != null)
+        {
+            scan = new Scanner(request);
+            next = scan.next();
+            switch (next)
+            {
+                case "upload":
+                    //send the request to the client(Server)
+                    client.sendMsg(request);
+                    //receive the file
+                    client.sendFile(scan.next());
+                    break;
+                default:
+                    client.sendMsg(request);
+
+            }
+            scan.close();
+
+        }
     }
 }

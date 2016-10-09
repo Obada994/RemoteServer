@@ -125,24 +125,10 @@ public void run()
 //***************************************************************************************************\\
 
 }
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception
+    {
         Server server = new Server(3245);
         server.run();
-//    byte[] tmp = new byte[]{1,2,3};
-//    byte[] tmp2 = new byte[]{4,5,6};
-//    byte[] res=null;
-//    ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-//    try {
-//        buffer.write(tmp2);
-//        buffer.write(tmp);
-//        buffer.write(new byte[]{-1});
-//        res=buffer.toByteArray();
-//        System.out.println(res[res.length-1]);
-//    } catch (IOException e) {
-//        e.printStackTrace();
-//    }
-
-
     }
 
 }
