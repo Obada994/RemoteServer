@@ -152,13 +152,13 @@ private void connect(Socket sock)
     }
     /*
            receive files from the clients
-         */
+    */
     private void getFile(String location)
     {
         System.out.println("getting a file");
         //performance testing
         long startTime = System.currentTimeMillis();
-        //file to receive
+        //file to write to
         File file = new File(location);
         //wrap InputStream in an ObjectInputStream
         ObjectInputStream in;
@@ -171,7 +171,6 @@ private void connect(Socket sock)
             //read the byte arrays of the sent file
             while ((bytes= (byte[]) in.readObject())!=null)
             {
-                System.out.println("reading...");
                 //decrypt them
                 decrypted=Server.decrypt(bytes);
                 //write the decrypted arrays to the file
@@ -179,7 +178,6 @@ private void connect(Socket sock)
             }
             //close the FileOutputStream
             out.close();
-            System.out.println("got the file");
         } catch (Exception e)
         {
             e.printStackTrace();
@@ -187,7 +185,7 @@ private void connect(Socket sock)
         //performance testing
         long stopTime = System.currentTimeMillis();
         long elapsedTime = stopTime - startTime;
-        System.out.println("getFile took: "+elapsedTime);
+        System.out.println("getting the file took: "+elapsedTime);
     }
 
     /*
@@ -205,7 +203,7 @@ private void connect(Socket sock)
     // A client sample code to connect and test out our server
     public static void main(String[] args) throws Exception {
         System.out.println("trying to connect");
-        Socket sock = new Socket("localhost", 3245);
+        Socket sock = new Socket(args[0], Integer.parseInt(args[1]));
         Client client = new Client(sock, 0);
         System.out.println("connected!");
         //auth with server

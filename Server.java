@@ -4,11 +4,13 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
+import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -18,10 +20,10 @@ import java.util.Arrays;
 public class Server
 {
     static ServerSocket serverSocket;
-
+    //connected clients
     static Client[] clients;
-
-    static int id;
+    //the number of connected clients
+    static int Count;
 /*
     Start the server on a specific port
  */
@@ -29,7 +31,7 @@ public Server(int port)
 {
     try {
         serverSocket = new ServerSocket(port);
-        id = 0;
+        Count=0;
         clients = new Client[10];
     } catch (IOException e) {
         System.err.println("Port is in use");
@@ -77,14 +79,17 @@ private static Key generateKey()
     Accept or decline a client connection "Connection in this phase is not encrypted"
  */
 public Client auth(Socket connection) throws Exception {
-    Client client = new Client(connection, id);
-    String msg = "weShouldGetTheStringDecrypted";
+    Client client = new Client(connection, Count);
+    SecureRandom random = new SecureRandom();
+    //generate a random string
+    String msg = new BigInteger(130,random).toString(32);
+    //encrypt and send, if we get the same string back then we'll allow the connection
     client.sendMsg(msg);
     String reply = client.getRequest();
     //auth succeed increment id
     if (reply.equals(msg))
     {
-        id++;
+        Count++;
         return client;
     }
     client.close();
@@ -117,7 +122,8 @@ public void run()
                      }
                  }.start();
                  System.out.println("Server: client listening started");
-             } catch (Exception e) {
+             }
+             catch (Exception e) {
                  e.printStackTrace();
              }
      }
