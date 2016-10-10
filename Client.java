@@ -17,14 +17,32 @@ import java.util.Scanner;
     private OutputStream output;
     private Socket socket;
     private  int id;
-    private File folder;
-
-    Client(Socket socket,int id)
+    //the path for the client's Desktop
+    private String path=System.getProperty("user.home") + "/Desktop";
+    /*
+    this constructor will be called by the server
+     */
+    Client(Socket socket, int id)
 {
     connect(socket);
     this.id = id;
-    folder = new File("/home/obada/Desktop/client"+id);
+    path = path+"/client"+id;
+    //create a folder for this user on Desktop
+    File folder = new File(path);
     folder.mkdir();
+}
+/*
+this constructor will be called by the client where he can specify the name of the folder on his desktop
+ */
+private Client(Socket socket,String folder)
+{
+    //no need for an ID
+    id = -1;
+    path = path+"/"+folder;
+    File file = new File(path);
+    file.mkdir();
+    connect(socket);
+
 }
 private void connect(Socket sock)
 {
@@ -100,7 +118,7 @@ private void connect(Socket sock)
                 //getting a file from the client
                 case "upload":
                     scan.next();
-                    getFile("/home/obada/Desktop/client"+id+"/"+scan.next()+"."+scan.next());
+                    getFile(path+"/"+scan.next()+"."+scan.next());
                     break;
                 //close connection
                 case "close":
@@ -128,6 +146,7 @@ private void connect(Socket sock)
         //bytes array to read bytes from the file
         byte[] bytes=new byte[1024*1024];
         //count of bytes read from the file
+        System.out.println("Uploading file");
         int count;
         try (FileInputStream inFile = new FileInputStream(file))
         {
@@ -145,6 +164,7 @@ private void connect(Socket sock)
             }
             //End of file signal
             outO.writeObject(null);
+            System.out.println("Upload complete!");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -155,9 +175,7 @@ private void connect(Socket sock)
     */
     private void getFile(String location)
     {
-        System.out.println("getting a file");
-        //performance testing
-        long startTime = System.currentTimeMillis();
+        System.out.println("Downloading file...");
         //file to write to
         File file = new File(location);
         //wrap InputStream in an ObjectInputStream
@@ -176,16 +194,13 @@ private void connect(Socket sock)
                 //write the decrypted arrays to the file
                 out.write(decrypted);
             }
+            System.out.println("Download complete!");
             //close the FileOutputStream
             out.close();
         } catch (Exception e)
         {
             e.printStackTrace();
         }
-        //performance testing
-        long stopTime = System.currentTimeMillis();
-        long elapsedTime = stopTime - startTime;
-        System.out.println("getting the file took: "+elapsedTime);
     }
 
     /*
@@ -199,12 +214,15 @@ private void connect(Socket sock)
     }
     int getId()
     {return id;}
-
+    private void setPath(String path)
+    {this.path=path;}
+    String getPath()
+    {return path;}
     // A client sample code to connect and test out our server
     public static void main(String[] args) throws Exception {
         System.out.println("trying to connect");
-        Socket sock = new Socket(args[0], Integer.parseInt(args[1]));
-        Client client = new Client(sock, 0);
+        Socket sock = new Socket("localhost", 3245);
+        Client client = new Client(sock, "MyCloud");
         System.out.println("connected!");
         //auth with server
         client.sendMsg(client.getRequest());
@@ -213,7 +231,6 @@ private void connect(Socket sock)
                 client.listen();
             }
         }.start();
-        System.out.println("Listening....");
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
         String request;
         String next;
@@ -230,12 +247,15 @@ private void connect(Socket sock)
                     //receive the file
                     client.sendFile(scan.next());
                     break;
+                case "dir-change":
+                    //change the saving directory
+                    client.setPath(scan.next());
+                    break;
                 default:
                     client.sendMsg(request);
 
             }
             scan.close();
-
         }
     }
 }

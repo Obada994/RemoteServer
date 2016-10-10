@@ -7,6 +7,7 @@ import java.io.*;
 import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Files;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
@@ -91,6 +92,15 @@ public Client auth(Socket connection) throws Exception {
     {
         Count++;
         return client;
+    }
+    File folder = new File(client.getPath());
+    try
+    {
+        //delete the folder for the new client in case auth fails
+        folder.delete();
+    }catch(Exception e)
+    {
+        System.out.println("the Folder for the newly unauthorized client contains some other files and that's so odd");
     }
     client.close();
     return null;
