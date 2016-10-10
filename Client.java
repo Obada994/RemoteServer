@@ -20,16 +20,11 @@ import java.util.Scanner;
     //the path for the client's Desktop
     private String path=System.getProperty("user.home") + "/Desktop";
     /*
-    this constructor will be called by the server
+    this constructor will be called by the server and it doesnt create a folder for the client
      */
-    Client(Socket socket, int id)
+    Client(Socket socket)
 {
     connect(socket);
-    this.id = id;
-    path = path+"/client"+id;
-    //create a folder for this user on Desktop
-    File folder = new File(path);
-    folder.mkdir();
 }
 /*
 this constructor will be called by the client where he can specify the name of the folder on his desktop
@@ -212,12 +207,16 @@ private void connect(Socket sock)
     input.close();
     socket.close();
     }
+
     int getId()
     {return id;}
-    private void setPath(String path)
+
+    void setPath(String path)
     {this.path=path;}
+
     String getPath()
     {return path;}
+
     // A client sample code to connect and test out our server
     public static void main(String[] args) throws Exception {
         System.out.println("trying to connect");

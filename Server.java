@@ -80,17 +80,25 @@ private static Key generateKey()
     Accept or decline a client connection "Connection in this phase is not encrypted"
  */
 public Client auth(Socket connection) throws Exception {
-    Client client = new Client(connection, Count);
+    Client client = new Client(connection);
     SecureRandom random = new SecureRandom();
     //generate a random string
     String msg = new BigInteger(130,random).toString(32);
     //encrypt and send, if we get the same string back then we'll allow the connection
     client.sendMsg(msg);
     String reply = client.getRequest();
-    //auth succeed increment id
+    //auth succeed
     if (reply.equals(msg))
     {
+        client.sendMsg("Server: Please enter the name of your directory");
+        client.setPath(client.getPath()+"/"+client.getRequest());
+        File folder = new File(client.getPath());
+        //make a direcotry for the connected user/or use and old one
+        folder.mkdir();
+        //increment Count
         Count++;
+        //return the connected client
+        client.sendMsg("Done!");
         return client;
     }
     File folder = new File(client.getPath());
