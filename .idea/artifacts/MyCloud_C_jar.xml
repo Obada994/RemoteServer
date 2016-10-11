@@ -1,6 +1,6 @@
 <component name="ArtifactManager">
   <artifact type="jar" build-on-make="true" name="MyCloud_C:jar">
-    <output-path>$USER_HOME$/Desktop/RemoteServer_jar</output-path>
+    <output-path>$USER_HOME$/Desktop/MyCloud_jar</output-path>
     <root id="archive" name="RemoteServer.jar">
       <element id="module-output" name="RemoteServer" />
     </root>

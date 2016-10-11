@@ -216,6 +216,38 @@ private void connect(Socket sock)
 
     String getPath()
     {return path;}
+    /*
+    check if a command is a vailed command
+     */
+    private boolean valid(String command)
+    {
+        try
+        {
+            Scanner scan = new Scanner(command);
+            String token;
+            token = scan.next();
+            //not a valid command
+            if(!token.equals("get") && !token.equals("upload"))
+                throw new Exception("Invalid command");
+            token = scan.next();
+            if(token.length()==0)
+                throw new Exception("Invalid path");
+            token = scan.next();
+            if(token.length()==0)
+                throw new Exception("Invalid name");
+            if(token.length()==0)
+                throw new Exception("Invalid extension");
+        }catch(Exception e)
+        {
+            help();
+            return false;
+        }
+        return true;
+    }
+    private void help()
+    {
+        System.out.println("Commands: upload,get\nSyntax: <Command> <Path> <FileName> <Extension>\n Example: get /home/<username>/Desktop/FileName.zip newFileName zip");
+    }
 
     // A client sample code to connect and test out our server
     public static void main(String[] args) throws Exception {
@@ -236,6 +268,8 @@ private void connect(Socket sock)
         Scanner scan;
         while ((request = in.readLine()) != null)
         {
+            if(!client.valid(request))
+                continue;
             scan = new Scanner(request);
             next = scan.next();
             switch (next)
