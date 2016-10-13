@@ -112,12 +112,6 @@ public void run()
     {
         Server server = new Server(3245);
         server.run();
-//        byte[] arr = new byte[1024*1024*500];//500 MBit's
-//        new Random().nextBytes(arr);
-//        FileOutputStream fileOut = new FileOutputStream("/home/obada/Desktop/big.txt");
-//        fileOut.write(arr);
-//        fileOut.flush();
-//        fileOut.close();
     }
 
 }

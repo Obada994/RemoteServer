@@ -129,7 +129,7 @@ private void connect(Socket sock)
                     sendFile("dir.zip");
                     break;
                 case "upload-dir":
-                    //get rid of this line
+                    //get rid of "upload-dir "
                     scan.next();
                     getFile(path+"/"+scan.next()+"."+scan.next());
 
@@ -178,9 +178,15 @@ private void connect(Socket sock)
             //End of file signal
             outO.writeObject(null);
             System.out.println("Upload complete!");
-
+        //FileNotFoundException then send a death signal "null" to the receiver client so it doesn't hang
         } catch (Exception e) {
             e.printStackTrace();
+            try {
+                outO = new ObjectOutputStream(output);
+                outO.writeObject(null);
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
         }
     }
     /*
@@ -225,8 +231,8 @@ private void connect(Socket sock)
     socket.close();
     }
 
-    String getId()
-    {return id;}
+//    String getId()
+//    {return id;}
 
     void setPath(String path)
     {this.path=path;}
@@ -234,18 +240,19 @@ private void connect(Socket sock)
     String getPath()
     {return path;}
     /*
-    check if a command is a valid command
+    check if a request fulfill our protocol: <Command><SPACE><Path><SPACE><TitleOfFile><SPACE><ExtensionOfFile>
+    note that TitleOfFile is the new name you give to your downloaded(get)/uploaded(upload) file
      */
     private boolean valid(String command)
     {
         try
         {
-            //Scanner should not crash as well, this pattern should be fulfilled <<String><Space><String><Space><String><Space><String>>>
+            //if Scanner crash then the protocol is not fulfilled
             Scanner scan = new Scanner(command);
             String token;
             token = scan.next();
-            //not a valid command
-            if(!token.equals("get") && !token.equals("upload"))
+            //check if the first token is a valid command
+            if(!token.equals("get") && !token.equals("upload") && !token.equals("upload-dir") && !token.equals("get-dir"))
                 throw new Exception("Invalid command");
             token = scan.next();
             if(token.length()==0)
@@ -268,14 +275,15 @@ private void connect(Socket sock)
                 (
                 "Syntax: <Command> <Path> <FileName> <Extension>\n" +
                 "Sample: get /home/<username>/Desktop/FileName.zip newFileName zip\n" +
-                "Commands: upload, get\n"
+                "Commands: upload, get"
                 );
     }
 
     // A client sample code to connect and test out our server
     public static void main(String[] args) throws Exception {
-        System.out.println("trying to connect");
+        System.out.println("Welcome to MyCloud\nTrying to connect");
         Socket sock = new Socket("localhost", 3245);
+        //init client and the download folder
         Client client = new Client(sock, "MyCloud");
         System.out.println("connected!");
         //auth with server
@@ -291,8 +299,8 @@ private void connect(Socket sock)
         Scanner scan;
         while ((request = in.readLine()) != null)
         {
-//            if(!client.valid(request))
-//                continue;
+            if(!client.valid(request))
+                continue;
             scan = new Scanner(request);
             next = scan.next();
             switch (next)
