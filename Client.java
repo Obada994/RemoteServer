@@ -127,8 +127,11 @@ private void connect(Socket sock)
                     System.out.println("notified");
                     //send the file
                     sendFile("dir.zip");
-
                     break;
+                case "upload-dir":
+                    //get rid of this line
+                    scan.next();
+                    getFile(path+"/"+scan.next()+"."+scan.next());
 
                 //close connection
                 case "close":

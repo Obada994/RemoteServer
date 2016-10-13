@@ -49,7 +49,8 @@ public Client auth(Socket connection) throws Exception {
     //auth succeed
     if (reply.equals(str))
     {
-        client.setPath(client.getPath()+"/"+str);
+        //all the connected clients will upload to the same folder
+        client.setPath(client.getPath()+"/"+"clients");
         File folder = new File(client.getPath());
         //make a direcotry for the connected user/or use and old one
         folder.mkdir();
