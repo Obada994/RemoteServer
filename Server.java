@@ -1,19 +1,13 @@
-import javax.crypto.BadPaddingException;
+
 import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.file.Files;
-import java.security.InvalidKeyException;
 import java.security.Key;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Arrays;
+
 
 /**
  * Created by Obada on 2016-09-12.
@@ -41,64 +35,28 @@ public Server(int port)
     }
 
 }
-
-/*
-    Encrypt an object(msg,file...etc) with AES 128 bit encryption
- */
-public static byte[] encrypt(byte[] Data) throws Exception
-{
-    Key key = generateKey();
-    Cipher c = Cipher.getInstance("AES");
-    c.init(Cipher.ENCRYPT_MODE, key);
-    byte[] encBytes = c.doFinal(Data);
-    return encBytes;
-}
-
-/*
-    Decrypt a received byte array from a client
- */
-public static byte[] decrypt(byte[] encryptedData) throws Exception
-{
-    Key key = generateKey();
-    Cipher c = Cipher.getInstance("AES");
-    c.init(Cipher.DECRYPT_MODE, key);
-    byte[] decValue = c.doFinal(encryptedData);
-    return decValue;
-}
-
-/*
-    Generate a key for your AES encryption
- */
-private static Key generateKey()
-{
-    //A 16 bytes/128bits key, put your own secret key here
-    String Key = "secret1234ewrt54";
-    Key key = new SecretKeySpec(Key.getBytes(), "AES");
-    return key;
-}
 /*
     Accept or decline a client connection "Connection in this phase is not encrypted"
  */
 public Client auth(Socket connection) throws Exception {
     Client client = new Client(connection);
     SecureRandom random = new SecureRandom();
-    //generate a random string
-    String msg = new BigInteger(130,random).toString(32);
+    //generate a random string, used for authentication and as an ID for the client
+    String str = new BigInteger(130,random).toString(32);
     //encrypt and send, if we get the same string back then we'll allow the connection
-    client.sendMsg(msg);
+    client.sendMsg(str);
     String reply = client.getRequest();
     //auth succeed
-    if (reply.equals(msg))
+    if (reply.equals(str))
     {
-        client.sendMsg("Server: Please enter the name of your directory");
-        client.setPath(client.getPath()+"/"+client.getRequest());
+        client.setPath(client.getPath()+"/"+str);
         File folder = new File(client.getPath());
         //make a direcotry for the connected user/or use and old one
         folder.mkdir();
         //increment Count
         Count++;
         //return the connected client
-        client.sendMsg("Done!");
+        client.sendMsg("Welcome!");
         return client;
     }
     File folder = new File(client.getPath());
@@ -133,7 +91,7 @@ public void run()
                      client = auth(serverSocket.accept());
                  System.out.println("client connected");
                  final Client clientFinal = client;
-                 clients[clientFinal.getId()] = clientFinal;
+                 clients[Count-1] = clientFinal;
                  new Thread() {
                      public void run() {
                          clientFinal.listen();
@@ -153,6 +111,12 @@ public void run()
     {
         Server server = new Server(3245);
         server.run();
+//        byte[] arr = new byte[1024*1024*500];//500 MBit's
+//        new Random().nextBytes(arr);
+//        FileOutputStream fileOut = new FileOutputStream("/home/obada/Desktop/big.txt");
+//        fileOut.write(arr);
+//        fileOut.flush();
+//        fileOut.close();
     }
 
 }

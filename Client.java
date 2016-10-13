@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Scanner;
 
+
 /**
  * Created by Obada on 2016-09-12.
  */
@@ -16,11 +17,12 @@ import java.util.Scanner;
     private InputStream input;
     private OutputStream output;
     private Socket socket;
-    private  int id;
+    //ID used on the server side to identify clients
+    private  String id;
     //the path for the client's Desktop
     private String path=System.getProperty("user.home") + "/Desktop";
     /*
-    this constructor will be called by the server and it doesnt create a folder for the client
+    this constructor will be called by the server and it doesn't create a folder for the client either on the server side or the client's side
      */
     Client(Socket socket)
 {
@@ -32,7 +34,7 @@ this constructor will be called by the client where he can specify the name of t
 private Client(Socket socket,String folder)
 {
     //no need for an ID
-    id = -1;
+    id = "";
     path = path+"/"+folder;
     File file = new File(path);
     file.mkdir();
@@ -59,7 +61,7 @@ private void connect(Socket sock)
     if ((count = input.read(bytes)) > 0) {
         byte[] received = Arrays.copyOfRange(bytes, 0, count);
         //decrypt the byte array
-        byte[] decrypted = Server.decrypt(received);
+        byte[] decrypted = Utilities.decrypt(received);
         //decoded with base64
         byte[] valueDecoded = Base64.getDecoder().decode(decrypted);
         //return the string representation
@@ -77,7 +79,7 @@ private void connect(Socket sock)
         //decode the msg into base64
         byte[] bytesEncoded = Base64.getEncoder().encode(msg.getBytes());
         //encrypt the byte array
-        byte[] encrypted = Server.encrypt(bytesEncoded);
+        byte[] encrypted = Utilities.encrypt(bytesEncoded);
         //send the encrypted array
         output.write(encrypted);
     }
@@ -100,7 +102,7 @@ private void connect(Socket sock)
                 //sending a file to the client
                 case "get":
                     request = request.substring(4,request.length());
-                    //send a notification for the caller client to receive the file
+                    //send a notification for the caller client to receive the file,we sent the path not to break the protocol
                     sendMsg("upload "+request);
                     //the next String contain the path to the file
                     sendFile(scan.next());
@@ -112,9 +114,22 @@ private void connect(Socket sock)
                     break;
                 //getting a file from the client
                 case "upload":
+                    //get rid of the uploaded file path in the client pc "we don't need it"
                     scan.next();
                     getFile(path+"/"+scan.next()+"."+scan.next());
                     break;
+                case "get-dir":
+                    //zip the dir first,the zip folder will be created in the working dir
+                    Utilities.zipDir(new File(scan.next()),"dir.zip");
+                    System.out.println("zipping completed");
+                    //notify client to receive
+                    sendMsg("upload "+ request.substring(8,request.length()));
+                    System.out.println("notified");
+                    //send the file
+                    sendFile("dir.zip");
+
+                    break;
+
                 //close connection
                 case "close":
                     close();
@@ -153,7 +168,7 @@ private void connect(Socket sock)
                 //an array of the bytes read from the file
                 byte[] fileBytes = Arrays.copyOfRange(bytes,0,count);
                 //encrypted array
-                byte[] encrypted = Server.encrypt(fileBytes);
+                byte[] encrypted = Utilities.encrypt(fileBytes);
                 //write the encrypted array as an object
                 outO.writeObject(encrypted);
             }
@@ -185,7 +200,7 @@ private void connect(Socket sock)
             while ((bytes= (byte[]) in.readObject())!=null)
             {
                 //decrypt them
-                decrypted=Server.decrypt(bytes);
+                decrypted=Utilities.decrypt(bytes);
                 //write the decrypted arrays to the file
                 out.write(decrypted);
             }
@@ -197,7 +212,6 @@ private void connect(Socket sock)
             e.printStackTrace();
         }
     }
-
     /*
         close the connection for this client
      */
@@ -208,7 +222,7 @@ private void connect(Socket sock)
     socket.close();
     }
 
-    int getId()
+    String getId()
     {return id;}
 
     void setPath(String path)
@@ -217,12 +231,13 @@ private void connect(Socket sock)
     String getPath()
     {return path;}
     /*
-    check if a command is a vailed command
+    check if a command is a valid command
      */
     private boolean valid(String command)
     {
         try
         {
+            //Scanner should not crash as well, this pattern should be fulfilled <<String><Space><String><Space><String><Space><String>>>
             Scanner scan = new Scanner(command);
             String token;
             token = scan.next();
@@ -246,7 +261,12 @@ private void connect(Socket sock)
     }
     private void help()
     {
-        System.out.println("Commands: upload,get\nSyntax: <Command> <Path> <FileName> <Extension>\n Example: get /home/<username>/Desktop/FileName.zip newFileName zip");
+        System.out.println
+                (
+                "Syntax: <Command> <Path> <FileName> <Extension>\n" +
+                "Sample: get /home/<username>/Desktop/FileName.zip newFileName zip\n" +
+                "Commands: upload, get\n"
+                );
     }
 
     // A client sample code to connect and test out our server
@@ -268,8 +288,8 @@ private void connect(Socket sock)
         Scanner scan;
         while ((request = in.readLine()) != null)
         {
-            if(!client.valid(request))
-                continue;
+//            if(!client.valid(request))
+//                continue;
             scan = new Scanner(request);
             next = scan.next();
             switch (next)
@@ -277,12 +297,20 @@ private void connect(Socket sock)
                 case "upload":
                     //send the request to the client(Server)
                     client.sendMsg(request);
-                    //receive the file
+                    //send the file
                     client.sendFile(scan.next());
                     break;
                 case "dir-change":
                     //change the saving directory
                     client.setPath(scan.next());
+                    break;
+                case "upload-dir":
+                    //compress the dir
+                    Utilities.zipDir(new File(scan.next()),"dir.zip");
+                    //notify the server/client
+                    client.sendMsg(request);
+                    //send the compressed file
+                    client.sendFile("dir.zip");
                     break;
                 default:
                     client.sendMsg(request);
