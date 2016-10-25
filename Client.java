@@ -17,9 +17,6 @@ import java.util.Scanner;
     private InputStream input;
     private OutputStream output;
     private Socket socket;
-    //ID used on the server side to identify clients
-    private  String id;
-    //the path for the client's Desktop
     private String path=System.getProperty("user.home") + "/Desktop";
     /*
     this constructor will be called by the server and it doesn't create a folder for the client either on the server side or the client's side
@@ -33,8 +30,6 @@ this constructor will be called by the client where he can specify the name of t
  */
 private Client(Socket socket,String folder)
 {
-    //no need for an ID
-    id = "";
     path = path+"/"+folder;
     File file = new File(path);
     file.mkdir();
@@ -247,6 +242,7 @@ private void connect(Socket sock)
     {
         try
         {
+            String[] valids = new String[]{"get","upload","get-dir","upload-dir",""};
             //if Scanner crash then the protocol is not fulfilled
             Scanner scan = new Scanner(command);
             String token;
