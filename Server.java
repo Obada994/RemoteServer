@@ -1,11 +1,7 @@
-
-import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.security.Key;
 import java.security.SecureRandom;
 
 
@@ -110,7 +106,7 @@ public void run()
 }
     public static void main(String[] args) throws Exception
     {
-        Server server = new Server(3245);
+        Server server = new Server(1234);
         server.run();
     }
 

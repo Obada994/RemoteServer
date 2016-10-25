@@ -119,14 +119,14 @@ private void connect(Socket sock)
                     getFile(path+"/"+scan.next()+"."+scan.next());
                     break;
                 case "get-dir":
-                    //zip the dir first,the zip folder will be created in the working dir
-                    Utilities.zipDir(new File(scan.next()),"dir.zip");
+                    //zip the dir first,the zip folder will be created in the /tmp dir
+                    Utilities.zipDir(new File(scan.next()),System.getProperty("java.io.tmpdir")+"/dir.zip");
                     System.out.println("zipping completed");
                     //notify client to receive
                     sendMsg("upload "+ request.substring(8,request.length()));
                     System.out.println("notified");
                     //send the file
-                    sendFile("dir.zip");
+                    sendFile(System.getProperty("java.io.tmpdir")+"/dir.zip");
                     break;
                 case "upload-dir":
                     //get rid of "upload-dir "
@@ -282,7 +282,7 @@ private void connect(Socket sock)
     // A client sample code to connect and test out our server
     public static void main(String[] args) throws Exception {
         System.out.println("Welcome to MyCloud\nTrying to connect");
-        Socket sock = new Socket("localhost", 3245);
+        Socket sock = new Socket("83.253.236.204", 1234);
         //init client and the download folder
         Client client = new Client(sock, "MyCloud");
         System.out.println("connected!");

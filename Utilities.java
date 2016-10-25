@@ -16,7 +16,7 @@ import java.util.zip.ZipOutputStream;
 /*
 A static class for the utilities used in our project:(Encrypt,Decrypt,Compress)
  */
-class Utilities {
+interface Utilities {
 
 
     /*
@@ -32,7 +32,7 @@ class Utilities {
     /*
     Generate a key for your AES encryption
  */
-    private static Key generateKey(String Key)
+    static Key generateKey(String Key)
     {
         return new SecretKeySpec(Key.getBytes(), "AES");
     }
@@ -49,13 +49,14 @@ class Utilities {
     /*
     return sub files/folders in a directory(Parent)
      */
-    private static List<String> getChildren(File dir, List<String> filesInDir) throws IOException {
+    static List<String> getChildren(File dir, List<String> filesInDir) throws IOException {
         //get all the sub files/folders in dir
         File[] files = dir.listFiles();
         //if directory is not empty
-        if (files != null);
-        for(File file : files){
-            //add the absloute file of the path to our list
+        if (files != null)
+        for(File file : files)
+        {
+            //add the absolute path of the file to our list
             if(file.isFile()) filesInDir.add(file.getAbsolutePath());
             //do a recursive call over the sub_folder
             else getChildren(file,filesInDir);
@@ -67,7 +68,7 @@ class Utilities {
      */
     static void zipDir(File dir, String zipDirName) {
         try {
-            List<String> filesListInDir = getChildren(dir,new ArrayList<String>());
+            List<String> filesListInDir = getChildren(dir, new ArrayList<>());
             //now zip files one by one
             //create ZipOutputStream to write to the zip file
             FileOutputStream fos = new FileOutputStream(zipDirName);
@@ -88,7 +89,6 @@ class Utilities {
             }
             zos.close();
             fos.close();
-            System.out.println("Done and written to: "+ zipDirName);
         } catch (IOException e) {
             e.printStackTrace();
         }
