@@ -8,6 +8,6 @@ public class Tests
     public static void main(String[] args)
     {
         File f = new File("/home/obada/Desktop/TEST");
-        System.out.println("");
+        System.out.println(System.getProperty("java.io.tmpdir"));
     }
 }

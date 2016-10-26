@@ -3,6 +3,8 @@ import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.SecureRandom;
+import java.util.ArrayList;
+
 
 
 /**
@@ -15,6 +17,8 @@ public class Server
     static Client[] clients;
     //the number of connected clients
     static int Count;
+
+    static File root;
 /*
     Start the server on a specific port
  */
@@ -23,7 +27,13 @@ public Server(int port)
     try {
         serverSocket = new ServerSocket(port);
         Count=0;
+        //Max 10 clients
         clients = new Client[10];
+        //root folder contains all connected clients folders
+        //create root folder on our Desktop
+        root = new File(System.getProperty("user.home") + "/Desktop/root");
+        //create the directory if it doesn't exist
+        if(!root.exists()) root.mkdir();
     } catch (IOException e) {
         System.err.println("Port is in use");
         System.out.println("Starting the server on port: "+port+1 );
@@ -32,7 +42,7 @@ public Server(int port)
 
 }
 /*
-    Accept or decline a client connection "Connection in this phase is not encrypted"
+   Authenticating with the connecting client
  */
 public Client auth(Socket connection) throws Exception {
     Client client = new Client(connection);
@@ -41,29 +51,17 @@ public Client auth(Socket connection) throws Exception {
     String str = new BigInteger(130,random).toString(32);
     //encrypt and send, if we get the same string back then we'll allow the connection
     client.sendMsg(str);
+    //if client can decrypt it then auth success
     String reply = client.getRequest();
     //auth succeed
     if (reply.equals(str))
     {
-        //all the connected clients will upload to the same folder
-        client.setPath(client.getPath()+"/"+"clients");
-        File folder = new File(client.getPath());
-        //make a direcotry for the connected user/or use and old one
-        folder.mkdir();
+        //folder for this client on this server
+        client.setPath(root.getAbsolutePath());
         //increment Count
         Count++;
         //return the connected client
-        client.sendMsg("Welcome!");
         return client;
-    }
-    File folder = new File(client.getPath());
-    try
-    {
-        //delete the folder for the new client in case auth fails
-        folder.delete();
-    }catch(Exception e)
-    {
-        System.out.println("the Folder for the newly unauthorized client contains some other files and that's so odd");
     }
     client.close();
     return null;
