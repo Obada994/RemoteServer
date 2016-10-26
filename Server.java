@@ -105,6 +105,7 @@ public void run()
     public static void main(String[] args) throws Exception
     {
         Server server = new Server(1234);
+        //run to listen to clients and execute
         server.run();
     }
 

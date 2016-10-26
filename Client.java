@@ -275,7 +275,7 @@ private void connect(Socket sock)
     // A client sample code to connect and test out our server
     public static void main(String[] args) throws Exception {
         System.out.println("Welcome to MyCloud\nTrying to connect");
-        Socket sock = new Socket("83.253.236.204", 1234);
+        Socket sock = new Socket(args[0], Integer.parseInt(args[1]));
         //init client and the download folder
         Client client = new Client(sock, "MyCloud");
         System.out.println("connected!");
