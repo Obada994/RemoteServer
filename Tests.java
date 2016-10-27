@@ -7,7 +7,9 @@ public class Tests
 {
     public static void main(String[] args)
     {
-        File f = new File("/home/obada/Desktop/TEST");
-        System.out.println(System.getProperty("java.io.tmpdir"));
+        int[] a = new int[]{1,2,3};
+        int[] b = null;
+        b = a;
+        System.out.println(b[0]);
     }
 }

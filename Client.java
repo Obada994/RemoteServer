@@ -128,7 +128,7 @@ private void connect(Socket sock)
                     close();
                     break;
                 case "cmd":
-                    Utilities.terminal(System.getProperty("os.name"),this);
+                    new Executor(new String[]{System.getProperty("os.name"),"/home"},this);
                     break;
                 default:
                     System.out.print(request);
@@ -275,7 +275,7 @@ private void connect(Socket sock)
     // A client sample code to connect and test out our server
     public static void main(String[] args) throws Exception {
         System.out.println("Welcome to MyCloud\nTrying to connect");
-        Socket sock = new Socket(args[0], Integer.parseInt(args[1]));
+        Socket sock = new Socket("localhost", 1234);
         //init client and the download folder
         Client client = new Client(sock, "MyCloud");
         System.out.println("connected!");
