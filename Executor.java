@@ -4,7 +4,7 @@ import java.util.Arrays;
 /**
  * Created by obada on 2016-10-27.
  */
-public class Executor {
+ class Executor {
 
     private File tmp;
     private FileInputStream input;
@@ -49,6 +49,8 @@ public class Executor {
         String str="";
         try(PrintWriter pw = new PrintWriter(new OutputStreamWriter(p.getOutputStream()), true))
         {
+            //notify the client
+            client.sendMsg("Shell started >");
             //read commands from user
             while(!(str=client.getRequest()).equals("close"))
             {
@@ -64,12 +66,17 @@ public class Executor {
                 client.sendMsg(new String(bytes));
             }
         }
-        catch(Exception e)
+        catch(Exception e)//to do create a custom exception class
         {
-            //Destroy the current process
+            String cwd=System.getProperty("user.home");
+            if(str.contains("cd"))// will fix this stupid solution
+                    cwd =str.substring(3,str.length());
+                // Destroy the current process
             try {
                 close();
-                properties[1] = str.substring(3,str.length());
+                //update the CWD
+                properties[1] = cwd;
+                //start a new process with the updated CWD
                 new Executor(properties,client);
             } catch (InterruptedException | IOException e1) {
                 e1.printStackTrace();

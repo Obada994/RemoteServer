@@ -3,7 +3,6 @@ import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.security.Key;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
