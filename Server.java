@@ -104,9 +104,9 @@ public void run()
     BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
     String request,next;
     Scanner scan;
-    Client client;
+    int index;
     try {
-        client = clients[0];
+        index = 0;
         while((request=in.readLine())!=null)
         {
             scan = new Scanner(request);
@@ -114,10 +114,10 @@ public void run()
             switch(next)
             {
                 case "change-client":
-                    client = clients[Integer.parseInt(scan.next())];
+                    index = Integer.parseInt(scan.next());
                 break;
                 default:
-                    clients[0].sendMsg(request);
+                    clients[index].sendMsg(request);
             }
         }
     } catch (IOException e) {
