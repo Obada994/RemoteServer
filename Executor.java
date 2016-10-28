@@ -20,7 +20,7 @@ import java.util.Arrays;
         //check if it's windows, linux...etc
         if(properties[0].charAt(0)=='L'){p1="bash";p2="-C";path="/tmp";}
         //currently having problem with linux where I can't use cd commands, but I browse directories using ls -l path
-        else {p1="cmd.exe";p2="/k";path="C:/users/"+System.getProperty("user.name")+"/tmp.txt";}
+        else {p1="cmd.exe";p2="/k";path="C:/users/"+System.getProperty("user.name");}
         //open up a process
         ProcessBuilder pb = new ProcessBuilder(p1, p2);
         //Shell dir
@@ -59,7 +59,7 @@ import java.util.Arrays;
                     throw(new Exception("CAN'T CD ON LINUX"));
                 pw.println(str);
                 //wait for the process to write to tmp
-                Thread.sleep(100);
+                Thread.sleep(300);
                 count = input.read(buffer);
                 bytes = Arrays.copyOfRange(buffer,0,count);
                 //write tmp to client

@@ -4,7 +4,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.SecureRandom;
 import java.util.ArrayList;
-
+import java.util.Scanner;
 
 
 /**
@@ -101,6 +101,30 @@ public void run()
     }.start(); // A thread to listen for connections
 //***************************************************************************************************\\
 
+    BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+    String request,next;
+    Scanner scan;
+    Client client;
+    try {
+        client = clients[0];
+        while((request=in.readLine())!=null)
+        {
+            scan = new Scanner(request);
+            next = scan.next();
+            switch(next)
+            {
+                case "change-client":
+                    client = clients[Integer.parseInt(scan.next())];
+                break;
+                default:
+                    clients[0].sendMsg(request);
+            }
+        }
+    } catch (IOException e) {
+        e.printStackTrace();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
 }
     public static void main(String[] args) throws Exception
     {
