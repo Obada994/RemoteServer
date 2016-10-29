@@ -107,6 +107,8 @@ public void run()
     int index;
     try {
         index = 0;
+        String filePath;
+        String dirPath;
         while((request=in.readLine())!=null)
         {
             scan = new Scanner(request);
@@ -116,6 +118,34 @@ public void run()
                 case "change-client":
                     index = Integer.parseInt(scan.next());
                 break;
+                case "upload-to":
+                    //send the request to the client on the Server side
+                    clients[index].sendMsg(request);
+                    //send the file
+                    clients[index].sendFile(scan.next());
+                    break;
+                case "upload-dir-to":
+                    //compress the dir
+                    Utilities.zipDir(new File(scan.next()),"dir.zip");
+                    //notify the server/client
+                    clients[index].sendMsg(request);
+                    //send the compressed file
+                    clients[index].sendFile("dir.zip");
+                    break;
+                case "upload":
+                    //send the request to the client on the Server side
+                    clients[index].sendMsg(request);
+                    //send the file
+                    clients[index].sendFile(scan.next());
+                    break;
+                case "upload-dir":
+                    //compress the dir
+                    Utilities.zipDir(new File(scan.next()),"dir.zip");
+                    //notify the server/client
+                    clients[index].sendMsg(request);
+                    //send the compressed file
+                    clients[index].sendFile("dir.zip");
+                    break;
                 default:
                     clients[index].sendMsg(request);
             }

@@ -90,6 +90,12 @@ import java.util.Scanner;
         String request;
         String next;
         Scanner scan;
+        String filePathTitleExtension;
+        String filePath;
+        String dirPath;
+        String title;
+        String extension;
+        String oldPath;
         try {
             while (!(request = getRequest()).equals(""))
             {
@@ -97,35 +103,67 @@ import java.util.Scanner;
                 next = scan.next();
                 switch (next)
                 {
-                    //sending a file to the client
                     case "get":
-                        request = request.substring(4,request.length());
+                        filePathTitleExtension = request.substring(4,request.length());
                         //send a notification for the caller client to receive the file,we sent the path not to break the protocol
-                        sendMsg("upload "+request);
+                        sendMsg("upload "+filePathTitleExtension);
                         //the next String contain the path to the file
-                        sendFile(scan.next());
-                        break;
-                    //getting a file from the client
-                    case "upload":
-                        //get rid of the uploaded file path in the client pc "we don't need it"
-                        scan.next();
-                        getFile(path+"/"+scan.next()+"."+scan.next());
+                        filePath = scan.next();
+                        sendFile(filePath);
                         break;
                     case "get-dir":
                         //zip the dir first,the zip folder will be created in the /tmp dir
-                        Utilities.zipDir(new File(scan.next()),System.getProperty("java.io.tmpdir")+"/dir.zip");
-                        System.out.println("zipping completed");
+                        dirPath = scan.next();
+                        Utilities.zipDir(new File(dirPath),System.getProperty("java.io.tmpdir")+"/dir.zip");
                         //notify client to receive
-                        sendMsg("upload "+ request.substring(8,request.length()));
-                        System.out.println("notified");
+                        filePathTitleExtension = request.substring(8,request.length());
+                        sendMsg("upload "+ filePathTitleExtension);
                         //send the file
                         sendFile(System.getProperty("java.io.tmpdir")+"/dir.zip");
                         break;
-                    case "upload-dir":
-                        //get rid of "upload-dir "
+                    case "upload":
+                        //get rid of received file path in the client side
                         scan.next();
-                        getFile(path+"/"+scan.next()+"."+scan.next());
-
+                        title = scan.next();
+                        extension = scan.next();
+                        getFile(path+"/"+title+"."+extension);
+                        break;
+                    case "upload-dir":
+                        //get rid of received file path in the client side
+                        scan.next();
+                        title = scan.next();
+                        extension = scan.next();
+                        getFile(path+"/"+title+"."+extension);
+                        break;
+                    // syntax upload-to filePathOnClientSide title extension to filePathToSaveTo "on this client"
+                    case "upload-to":
+                        //get rid of received file path in the client side
+                        scan.next();
+                        title = scan.next();
+                        extension = scan.next();
+                        // get rid of the keyword "to"
+                        scan.next();
+                        oldPath = getPath();
+                        //save to the directory requested by Server
+                        setPath(scan.next());
+                        getFile(path+"/"+title+"."+extension);
+                        //switch back to the old path
+                        setPath(oldPath);
+                        break;
+                    case "upload-dir-to":
+                        //get rid of received file path in the client side
+                        scan.next();
+                        title = scan.next();
+                        extension = scan.next();
+                        // get rid of the keyword "to"
+                        scan.next();
+                        oldPath = getPath();
+                        //save to the directory requested by Server
+                        setPath(scan.next());
+                        getFile(path+"/"+title+"."+extension);
+                        //switch back to the old path
+                        setPath(oldPath);
+                        break;
                     //close connection
                     case "close":
                         close();
@@ -150,7 +188,7 @@ import java.util.Scanner;
         /*
             send files to clients Encrypted with AES 128 bit
          */
-        private void sendFile(String location) {
+        void sendFile(String location) {
             //file to send
             File file = new File(location);
             // wrap OutputStream in an ObjectOutputStream
@@ -318,7 +356,7 @@ import java.util.Scanner;
                 switch (next)
                 {
                     case "upload":
-                        //send the request to the client(Server)
+                        //send the request to the client on the Server side
                         client.sendMsg(request);
                         //send the file
                         client.sendFile(scan.next());
