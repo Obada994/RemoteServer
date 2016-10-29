@@ -45,7 +45,7 @@ public Server(int port)
    Authenticating with the connecting client
  */
 public Client auth(Socket connection) throws Exception {
-    Client client = new Client(connection);
+    Client client = new Client(connection,true);
     SecureRandom random = new SecureRandom();
     //generate a random string, used for authentication and as an ID for the client
     String str = new BigInteger(130,random).toString(32);

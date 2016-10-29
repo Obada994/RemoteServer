@@ -65,13 +65,16 @@ import java.util.Arrays;
                 //write tmp to client
                 client.sendMsg(new String(bytes));
             }
-        }
-        catch(Exception e)//to do create a custom exception class
-        {
-            String cwd=System.getProperty("user.home");
-            if(str.contains("cd"))// will fix this stupid solution
-                    cwd =str.substring(3,str.length());
-                // Destroy the current process
+          // connection and Thread catches
+        } catch (InterruptedException | IOException e) {
+            try {
+                close();
+            } catch (InterruptedException | IOException e1) {
+                e1.printStackTrace();
+            }
+        } catch (Exception e) {
+            String cwd=str.substring(3,str.length());;
+            // Destroy the current process
             try {
                 close();
                 //update the CWD
@@ -84,9 +87,11 @@ import java.util.Arrays;
         }
         try {
             close();
+            //catch statemnet for close() only
         } catch (InterruptedException | IOException e) {
             e.printStackTrace();
         }
+
     }
     private void close() throws InterruptedException, IOException {
         //this will make main thread wait till process (console) will finish (will be closed)
