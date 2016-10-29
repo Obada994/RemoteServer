@@ -72,8 +72,9 @@ import java.util.Arrays;
             } catch (InterruptedException | IOException e1) {
                 e1.printStackTrace();
             }
+            //this catch will only happen when we CD on linux
         } catch (Exception e) {
-            String cwd=str.substring(3,str.length());;
+            String cwd=str.substring(3,str.length());
             // Destroy the current process
             try {
                 close();
@@ -87,7 +88,7 @@ import java.util.Arrays;
         }
         try {
             close();
-            //catch statemnet for close() only
+            //catch statement for close() only
         } catch (InterruptedException | IOException e) {
             e.printStackTrace();
         }

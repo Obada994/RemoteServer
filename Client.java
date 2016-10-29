@@ -18,16 +18,10 @@ import java.util.Scanner;
     private OutputStream output;
     private Socket socket;
     private String path=System.getProperty("user.home") + "/Desktop";
-    private boolean Server;
     /*
      this constructor will be called by the server and it doesn't create a folder for the client either on the server side or the client's side
     */
-    Client(Socket socket,boolean Server)
-    {
-        connect(socket);
-        //Server specify whether this client is running on the Server side or Client side
-        this.Server = Server;
-    }
+    Client(Socket socket) {connect(socket);}
     /*
     this constructor will be called by the client where he can specify the name of the folder on his desktop
      */
@@ -105,9 +99,8 @@ import java.util.Scanner;
                 {
                     case "get":
                         filePathTitleExtension = request.substring(4,request.length());
-                        //send a notification for the caller client to receive the file,we sent the path not to break the protocol
+                        //send a notification for the client on the Server side to receive the file
                         sendMsg("upload "+filePathTitleExtension);
-                        //the next String contain the path to the file
                         filePath = scan.next();
                         sendFile(filePath);
                         break;
@@ -122,7 +115,7 @@ import java.util.Scanner;
                         sendFile(System.getProperty("java.io.tmpdir")+"/dir.zip");
                         break;
                     case "upload":
-                        //get rid of received file path in the client side
+                        //get rid of received file path on the client on the Server side
                         scan.next();
                         title = scan.next();
                         extension = scan.next();
@@ -284,13 +277,13 @@ import java.util.Scanner;
         void setPath(String path)
         {this.path=path;}
 
-        String getPath()
+        private String getPath()
         {return path;}
         /*
         check if a request fulfill our protocol: <Command><SPACE><Path><SPACE><TitleOfFile><SPACE><ExtensionOfFile>
         note that TitleOfFile is the new name you give to your downloaded(get)/uploaded(upload) file
          */
-        private boolean valid(String command)
+        private boolean valid(String command)// TODO
         {
             try
             {
@@ -394,7 +387,7 @@ import java.util.Scanner;
                 continue;
             }
             //init client
-            Client client = new Client(sock, false);
+            Client client = new Client(sock);
             //auth with server "Send the echo message back"
             client.sendMsg(client.getRequest());
             return client.listen();

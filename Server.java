@@ -3,7 +3,6 @@ import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.SecureRandom;
-import java.util.ArrayList;
 import java.util.Scanner;
 
 
@@ -12,13 +11,13 @@ import java.util.Scanner;
  */
 public class Server
 {
-    static ServerSocket serverSocket;
+    private static ServerSocket serverSocket;
     //connected clients
-    static Client[] clients;
+    private static Client[] clients;// to do manage the connected clients
     //the number of connected clients
-    static int Count;
-
-    static File root;
+    private static int Count;
+    // folder the save the uplaoded files by clients
+    private static File root;
 /*
     Start the server on a specific port
  */
@@ -29,7 +28,6 @@ public Server(int port)
         Count=0;
         //Max 10 clients
         clients = new Client[10];
-        //root folder contains all connected clients folders
         //create root folder on our Desktop
         root = new File(System.getProperty("user.home") + "/Desktop/root");
         //create the directory if it doesn't exist
@@ -44,8 +42,8 @@ public Server(int port)
 /*
    Authenticating with the connecting client
  */
-public Client auth(Socket connection) throws Exception {
-    Client client = new Client(connection,true);
+private Client auth(Socket connection) throws Exception {
+    Client client = new Client(connection);
     SecureRandom random = new SecureRandom();
     //generate a random string, used for authentication and as an ID for the client
     String str = new BigInteger(130,random).toString(32);
@@ -69,7 +67,7 @@ public Client auth(Socket connection) throws Exception {
     /*
         The main run method
      */
-public void run()
+private void run()
 {
 //***********************************************************************************************\\
     new Thread()// thread waiting for connections
@@ -119,29 +117,35 @@ public void run()
                     index = Integer.parseInt(scan.next());
                 break;
                 case "upload-to":
-                    //send the request to the client on the Server side
+                    //notify the client on the Client side to receive the file
                     clients[index].sendMsg(request);
+                    //the path of the file we're uploading
+                    filePath = scan.next();
                     //send the file
-                    clients[index].sendFile(scan.next());
+                    clients[index].sendFile(filePath);
                     break;
                 case "upload-dir-to":
-                    //compress the dir
-                    Utilities.zipDir(new File(scan.next()),"dir.zip");
-                    //notify the server/client
+                    //the path of the dir we're going to upload
+                    dirPath = scan.next();
+                    //compress the dir and save it in the working dir
+                    Utilities.zipDir(new File(dirPath),"dir.zip");
+                    //notify the client on the Client side
                     clients[index].sendMsg(request);
-                    //send the compressed file
+                    //send the compressed file (notice it's on the working dir)
                     clients[index].sendFile("dir.zip");
                     break;
                 case "upload":
-                    //send the request to the client on the Server side
+                    //send the request to the client on the Client side
                     clients[index].sendMsg(request);
+                    //to upload file path
+                    filePath = scan.next();
                     //send the file
-                    clients[index].sendFile(scan.next());
+                    clients[index].sendFile(filePath);
                     break;
                 case "upload-dir":
-                    //compress the dir
+                    //compress the dir...
                     Utilities.zipDir(new File(scan.next()),"dir.zip");
-                    //notify the server/client
+                    //notify the Client
                     clients[index].sendMsg(request);
                     //send the compressed file
                     clients[index].sendFile("dir.zip");
@@ -150,8 +154,6 @@ public void run()
                     clients[index].sendMsg(request);
             }
         }
-    } catch (IOException e) {
-        e.printStackTrace();
     } catch (Exception e) {
         e.printStackTrace();
     }
