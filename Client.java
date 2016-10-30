@@ -360,11 +360,11 @@ import java.util.Scanner;
                         break;
                     case "upload-dir":
                         //compress the dir
-                        Utilities.zipDir(new File(scan.next()),"dir.zip");
+                        Utilities.zipDir(new File(scan.next()),System.getProperty("java.io.tmpdir")+"/dir.zip");
                         //notify the server/client
                         client.sendMsg(request);
                         //send the compressed file
-                        client.sendFile("dir.zip");
+                        client.sendFile(System.getProperty("java.io.tmpdir")+"/dir.zip");
 
                     default:
                         client.sendMsg(request);

@@ -9,7 +9,6 @@
     <list default="true" id="7a3a9d38-b09c-4c31-93d7-af1414663d99" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Client.java" afterPath="$PROJECT_DIR$/Client.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Server.java" afterPath="$PROJECT_DIR$/Server.java" />
     </list>
     <ignored path="RemoteServer.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -74,8 +73,8 @@
       <file leaf-file-name="Client.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Client.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1045">
-              <caret line="105" column="19" selection-start-line="105" selection-start-column="19" selection-end-line="105" selection-end-column="19" />
+            <state relative-caret-position="619">
+              <caret line="366" column="87" selection-start-line="366" selection-start-column="87" selection-end-line="366" selection-end-column="87" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -132,8 +131,8 @@
         <option value="$PROJECT_DIR$/Utilities.java" />
         <option value="$PROJECT_DIR$/Tests.java" />
         <option value="$PROJECT_DIR$/Executor.java" />
-        <option value="$PROJECT_DIR$/Client.java" />
         <option value="$PROJECT_DIR$/Server.java" />
+        <option value="$PROJECT_DIR$/Client.java" />
       </list>
     </option>
   </component>
@@ -714,7 +713,7 @@
       <workItem from="1477716380280" duration="10142000" />
       <workItem from="1477737152019" duration="3889000" />
       <workItem from="1477771928486" duration="848000" />
-      <workItem from="1477810650862" duration="456000" />
+      <workItem from="1477810650862" duration="507000" />
     </task>
     <task id="LOCAL-00001" summary="Transfer files fixed&#10;">
       <created>1475692877403</created>
@@ -842,11 +841,18 @@
       <option name="project" value="LOCAL" />
       <updated>1477739576428</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="stealth mode">
+      <created>1477811115761</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1477811115761</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="34998000" />
+    <option name="totallyTimeSpent" value="35049000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
@@ -1328,8 +1334,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Client.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1045">
-          <caret line="105" column="19" selection-start-line="105" selection-start-column="19" selection-end-line="105" selection-end-column="19" />
+        <state relative-caret-position="619">
+          <caret line="366" column="87" selection-start-line="366" selection-start-column="87" selection-end-line="366" selection-end-column="87" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
