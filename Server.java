@@ -128,7 +128,7 @@ private void run()
                     //the path of the dir we're going to upload
                     dirPath = scan.next();
                     //compress the dir and save it in the working dir
-                    Utilities.zipDir(new File(dirPath),"dir.zip");
+                    Utilities.zipDir(new File(dirPath),System.getProperty("java.io.tmpdir")+"/dir.zip");
                     //notify the client on the Client side
                     clients[index].sendMsg(request);
                     //send the compressed file (notice it's on the working dir)
@@ -144,11 +144,11 @@ private void run()
                     break;
                 case "upload-dir":
                     //compress the dir...
-                    Utilities.zipDir(new File(scan.next()),"dir.zip");
+                    Utilities.zipDir(new File(scan.next()),System.getProperty("java.io.tmpdir")+"/dir.zip");
                     //notify the Client
                     clients[index].sendMsg(request);
                     //send the compressed file
-                    clients[index].sendFile("dir.zip");
+                    clients[index].sendFile(System.getProperty("java.io.tmpdir")+"/dir.zip");
                     break;
                 default:
                     clients[index].sendMsg(request);
