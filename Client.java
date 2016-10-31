@@ -16,7 +16,7 @@ import java.util.Scanner;
 {
 
     private InputStream input;
-    private OutputStream output;
+     OutputStream output;
     private Socket socket;
     private String path=System.getProperty("user.home") + "/Desktop";
     /*
@@ -26,7 +26,7 @@ import java.util.Scanner;
     /*
     this constructor will be called by the client where he can specify the name of the folder on his desktop
      */
-    private Client(Socket socket,String folder)
+    Client(Socket socket,String folder)
     {
         path = path+"/"+folder;
         File file = new File(path);
@@ -163,7 +163,12 @@ import java.util.Scanner;
                         close();
                         return 0;
                     case "cmd":
-                        new Executor(new String[]{System.getProperty("os.name"),System.getProperty("user.home")},this);
+                        try {
+                            new Executor(new String[]{System.getProperty("os.name"), System.getProperty("user.home")}, this);
+                        }catch(Exception e)
+                        {
+                            System.out.println("wow");
+                        }
                         break;
                     default:
                         System.out.print(request);
@@ -171,10 +176,11 @@ import java.util.Scanner;
                 }
                 scan.close();
             }
-            return 0;
+            return -1;
             //if Server goes down will try to restart this client if it was running on the Client side
         } catch (Exception e) {
             //close streams if any is still open
+            System.out.println("lsiten E");
             close();
             return -1;
         }
@@ -284,12 +290,12 @@ import java.util.Scanner;
         check if a request fulfill our protocol: <Command><SPACE><Path><SPACE><TitleOfFile><SPACE><ExtensionOfFile>//OPTIONAL//<to><PathToSaveTo>
         note that TitleOfFile is the new name you give to your downloaded(get)/uploaded(upload) file
          */
-        boolean valid(String command)// TODO
+        private boolean valid(String command)
         {
             try
             {
                 //list of all commands we have
-                ArrayList<String> valides = new ArrayList<String>();
+                ArrayList<String> valides = new ArrayList<>();
                 valides.add("upload"); valides.add("upload-to"); valides.add("upload-dir"); valides.add("upload-dir-to"); valides.add("cmd");
                 valides.add("get"); valides.add("get-dir");
                 //if Scanner crash then the protocol is not fulfilled
@@ -405,7 +411,7 @@ import java.util.Scanner;
     {
         int integer;
         integer = stealth(new String[]{"localhost","1234"});
-        // try again if connection is not closed normally
+        // try connecting again if connection is not closed normally
         while(integer==-1) integer = stealth(new String[]{"localhost", "1234"});
     }
     }

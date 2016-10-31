@@ -6,8 +6,6 @@ import java.util.Arrays;
  */
  class Executor {
 
-    private File tmp;
-    private FileInputStream input;
     private Process p;
 
     /*
@@ -16,41 +14,33 @@ import java.util.Arrays;
      */
     Executor(String[] properties,Client client)
     {
-        String p1,p2,path;
+        String p1,p2;
         //check if it's windows, linux...etc
-        if(properties[0].charAt(0)=='L'){p1="bash";p2="-C";path="/tmp";}
+        if(properties[0].charAt(0)=='L'){p1="bash";p2="-C";}
         //currently having problem with linux where I can't use cd commands, but I browse directories using ls -l path
-        else {p1="cmd.exe";p2="/k";path="C:/users/"+System.getProperty("user.name");}
+        else {p1="cmd.exe";p2="/k";}
         //open up a process
         ProcessBuilder pb = new ProcessBuilder(p1, p2);
         //Shell dir
         pb.directory(new File(properties[1]));
-        //write all output/error output to this file
-        tmp = new File(path+"/tmp.txt");
-        if(!tmp.exists()) try {
-            tmp.createNewFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        //redirect process output to tmp
-        pb.redirectOutput(tmp);
-        //redirect process output to tmp
-        pb.redirectError(tmp);
         p = null;
-        byte[] bytes;
-        byte[] buffer = new byte[1024];
-        int count;
-        try {
+        try
+        {
             p = pb.start();
-            input = new FileInputStream(tmp);
+//            input = new FileInputStream(tmp);
         } catch (Exception e) {
             e.printStackTrace();
         }
         String str="";
+        //redirect the input and the error stream of the process to client
+        RedirectStream error = new RedirectStream(p.getErrorStream(),client);
+        RedirectStream input = new RedirectStream(p.getInputStream(),client);
+        error.start();
+        input.start();
         try(PrintWriter pw = new PrintWriter(new OutputStreamWriter(p.getOutputStream()), true))
         {
             //notify the client
-            client.sendMsg("Shell started >");
+            client.sendMsg(properties[1]+" >");
             //read commands from user
             while(!(str=client.getRequest()).equals("close"))
             {
@@ -58,18 +48,13 @@ import java.util.Arrays;
                 if(str.contains("cd") && properties[0].charAt(0)=='L')
                     throw(new Exception("CAN'T CD ON LINUX"));
                 pw.println(str);
-                //wait for the process to write to tmp
-                Thread.sleep(300);
-                count = input.read(buffer);
-                bytes = Arrays.copyOfRange(buffer,0,count);
-                //write tmp to client
-                client.sendMsg(new String(bytes));
             }
-          // connection and Thread catches
-        } catch (InterruptedException | IOException e) {
+            client.sendMsg("Terminal closed...");
+            // connection and Thread catches
+        } catch (IOException e) {
             try {
                 close();
-            } catch (InterruptedException | IOException e1) {
+            } catch (InterruptedException e1) {
                 e1.printStackTrace();
             }
             //this catch will only happen when we CD on linux
@@ -82,24 +67,20 @@ import java.util.Arrays;
                 properties[1] = cwd;
                 //start a new process with the updated CWD
                 new Executor(properties,client);
-            } catch (InterruptedException | IOException e1) {
+            } catch (InterruptedException e1) {
                 e1.printStackTrace();
             }
         }
         try {
             close();
             //catch statement for close() only
-        } catch (InterruptedException | IOException e) {
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
     }
-    private void close() throws InterruptedException, IOException {
+    private void close() throws InterruptedException {
         //this will make main thread wait till process (console) will finish (will be closed)
         p.waitFor();
-        //close input stream
-        input.close();
-        //delete the dir
-        tmp.delete();
     }
 }
