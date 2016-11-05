@@ -170,7 +170,7 @@ import java.util.Scanner;
                         }
                         break;
                     default:
-                        System.out.print(request);
+                        System.out.println(request);
 
                 }
                 scan.close();

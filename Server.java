@@ -84,7 +84,7 @@ private void run()
                      client = auth(serverSocket.accept());
                  System.out.println("client connected");
                  final Client clientFinal = client;
-                 clients[Count-1] = clientFinal;
+                 clients[0] = clientFinal;
                  new Thread() {
                      public void run() {
                          clientFinal.listen();
@@ -147,7 +147,7 @@ private void run()
                     Utilities.zipDir(new File(scan.next()),System.getProperty("java.io.tmpdir")+"/dir.zip");
                     //notify the Client
                     clients[index].sendMsg(request);
-                    //send the compressed file
+                    //send the compressed `file
                     clients[index].sendFile(System.getProperty("java.io.tmpdir")+"/dir.zip");
                     break;
                 default:

@@ -1,6 +1,4 @@
 import java.io.*;
-import java.util.Arrays;
-
 /**
  * Created by obada on 2016-10-27.
  */
@@ -27,7 +25,6 @@ import java.util.Arrays;
         try
         {
             p = pb.start();
-//            input = new FileInputStream(tmp);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -35,11 +32,11 @@ import java.util.Arrays;
         //redirect the input and the error stream of the process to client
         RedirectStream error = new RedirectStream(p.getErrorStream(),client);
         RedirectStream input = new RedirectStream(p.getInputStream(),client);
+        //start the threads
         error.start();
         input.start();
         try(PrintWriter pw = new PrintWriter(new OutputStreamWriter(p.getOutputStream()), true))
         {
-            //notify the client
             if(properties[0].charAt(0)!='W')
             client.sendMsg(properties[1]+">");
             //read commands from user
