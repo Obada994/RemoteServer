@@ -16,7 +16,7 @@ public class RedirectStream extends Thread {
     public void run()
     {
         int len;
-        byte[] buffer= new byte[1024*8];
+        byte[] buffer= new byte[1024*1024];
         try
         {
             while((len=in.read(buffer))>0)

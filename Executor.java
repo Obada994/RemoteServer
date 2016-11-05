@@ -40,7 +40,8 @@ import java.util.Arrays;
         try(PrintWriter pw = new PrintWriter(new OutputStreamWriter(p.getOutputStream()), true))
         {
             //notify the client
-            client.sendMsg(properties[1]+" >");
+            if(properties[0].charAt(0)!='W')
+            client.sendMsg(properties[1]+">");
             //read commands from user
             while(!(str=client.getRequest()).equals("close"))
             {
