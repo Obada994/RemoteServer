@@ -8,9 +8,6 @@
   <component name="ChangeListManager">
     <list default="true" id="7a3a9d38-b09c-4c31-93d7-af1414663d99" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Client.java" afterPath="$PROJECT_DIR$/Client.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Server.java" afterPath="$PROJECT_DIR$/Server.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Tests.java" afterPath="$PROJECT_DIR$/Tests.java" />
     </list>
     <ignored path="RemoteServer.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -554,7 +551,7 @@
       <workItem from="1479030660276" duration="615000" />
       <workItem from="1479039828245" duration="25000" />
       <workItem from="1479041348923" duration="5190000" />
-      <workItem from="1479047513750" duration="4046000" />
+      <workItem from="1479047513750" duration="4084000" />
     </task>
     <task id="LOCAL-00001" summary="Transfer files fixed&#10;">
       <created>1475692877403</created>
@@ -710,11 +707,18 @@
       <option name="project" value="LOCAL" />
       <updated>1478359443533</updated>
     </task>
-    <option name="localTasksCounter" value="23" />
+    <task id="LOCAL-00023" summary="fix bug when uploading file with spaces in file name">
+      <created>1479055821002</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1479055821002</updated>
+    </task>
+    <option name="localTasksCounter" value="24" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="70375000" />
+    <option name="totallyTimeSpent" value="70413000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
@@ -769,7 +773,8 @@
     <MESSAGE value="CD commands on Linux" />
     <MESSAGE value="stealth mode" />
     <MESSAGE value="Debugging" />
-    <option name="LAST_COMMIT_MESSAGE" value="Debugging" />
+    <MESSAGE value="fix bug when uploading file with spaces in file name" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix bug when uploading file with spaces in file name" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
