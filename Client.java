@@ -14,7 +14,6 @@ import java.util.Scanner;
  */
  class Client
 {
-
     private InputStream input;
     private OutputStream output;
     private Socket socket;
@@ -303,7 +302,7 @@ import java.util.Scanner;
         check if a request fulfill our protocol: <Command><SPACE><Path><SPACE><TitleOfFile><SPACE><ExtensionOfFile>//OPTIONAL//<to><PathToSaveTo>
         note that TitleOfFile is the new name you give to your downloaded(get)/uploaded(upload) file
          */
-        private boolean valid(String command)
+        static boolean valid(String command)
         {
             try
             {
@@ -314,9 +313,10 @@ import java.util.Scanner;
                 //if Scanner crash then the protocol is not fulfilled
                 Scanner scan = new Scanner(command);
                 String token;
-                token = scan.next();
+                String request;
+                request = scan.next();
                 //check if the first token is a valid command
-                if(!valides.contains(token))
+                if(!valides.contains(request))
                     throw new Exception("Invalid command");
                 token = scan.next();
                 //if the path is invalid
@@ -329,6 +329,15 @@ import java.util.Scanner;
                 //if the extension is invalid
                 if(token.length()==0)
                     throw new Exception("Invalid extension");
+                if(request.contains("-to"))
+                {
+                    token = scan.next();
+                    if(!token.equals("to"))
+                        throw new Exception("Keyword to is missing");
+                    token = scan.next();
+                    if(token.length()==0)
+                        throw new Exception("invalid path");
+                }
             }catch(Exception e)
             {
                 help();
@@ -336,7 +345,7 @@ import java.util.Scanner;
             }
             return true;
         }
-        private void help()
+        static void help()
         {
             System.out.println
                     (
@@ -428,11 +437,19 @@ import java.util.Scanner;
             return client.listen();
         }
 
+        String getIp()
+        {
+            return socket.getInetAddress().getHostAddress();
+        }
+        String getHost()
+        {
+        return socket.getInetAddress().getHostName();
+        }
     public static void main (String[]args)throws Exception
     {
         int integer;
-        integer = stealth(new String[]{"83.253.236.204","1234"});
+        integer = stealth(new String[]{"localhost","1234"});
         // try connecting again if connection is not closed normally
-        while(integer==-1) integer = stealth(new String[]{"83.253.236.204", "1234"});
+        while(integer==-1) integer = stealth(new String[]{"localhost", "1234"});
     }
     }
