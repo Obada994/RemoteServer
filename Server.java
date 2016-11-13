@@ -107,6 +107,7 @@ private void run()
         index = 0;
         String filePath;
         String dirPath;
+        String rx = "[^\"\\s]+|\"(\\\\.|[^\\\\\"])*\"";
         while((request=in.readLine())!=null)
         {
             scan = new Scanner(request);
@@ -120,13 +121,17 @@ private void run()
                     //notify the client on the Client side to receive the file
                     clients[index].sendMsg(request);
                     //the path of the file we're uploading
-                    filePath = scan.next();
+                    filePath = scan.findInLine(rx);
+                    // get rid of the quotation marks
+                    filePath = filePath.substring(1,filePath.length()-1);
                     //send the file
                     clients[index].sendFile(filePath);
                     break;
                 case "upload-dir-to":
                     //the path of the dir we're going to upload
-                    dirPath = scan.next();
+                    dirPath = scan.findInLine(rx);
+                    // get rid of quatation marks
+                    dirPath = dirPath.substring(1,dirPath.length()-1);
                     //compress the dir and save it in the working dir
                     Utilities.zipDir(new File(dirPath),System.getProperty("java.io.tmpdir")+"/dir.zip");
                     //notify the client on the Client side
@@ -137,14 +142,20 @@ private void run()
                 case "upload":
                     //send the request to the client on the Client side
                     clients[index].sendMsg(request);
-                    //to upload file path
-                    filePath = scan.next();
+                    //uploaded file location
+                    filePath = scan.findInLine(rx);
+                    // get rid of the quotation marks
+                    filePath = filePath.substring(1,filePath.length()-1);
                     //send the file
                     clients[index].sendFile(filePath);
                     break;
                 case "upload-dir":
-                    //compress the dir...
-                    Utilities.zipDir(new File(scan.next()),System.getProperty("java.io.tmpdir")+"/dir.zip");
+                    //the path of the dir we're going to upload
+                    dirPath = scan.findInLine(rx);
+                    // get rid of quotation marks
+                    dirPath = dirPath.substring(1,dirPath.length()-1);
+                    //compress the dir
+                    Utilities.zipDir(new File(dirPath),System.getProperty("java.io.tmpdir")+"/dir.zip");
                     //notify the Client
                     clients[index].sendMsg(request);
                     //send the compressed `file
