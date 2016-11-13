@@ -13,7 +13,7 @@ public class Server
 {
     private static ServerSocket serverSocket;
     //connected clients
-    private static Client[] clients;// to do manage the connected clients
+    private static Client[] clients;// to do manage the connected clientss
     //the number of connected clients
     private static int Count;
     // folder the save the uplaoded files by clients
