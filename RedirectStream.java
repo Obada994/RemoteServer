@@ -17,10 +17,9 @@ public class RedirectStream extends Thread {
     {
         int len;
         byte[] buffer= new byte[1024*1024];
-        try
-        {
-            while((len=in.read(buffer))>0)
-            client.sendMsg(new String(Arrays.copyOfRange(buffer,0,len)));
+        try {
+            while ((len = in.read(buffer)) > 0)
+                client.sendMsg(new String(Arrays.copyOfRange(buffer, 0, len)));
         } catch (Exception e) {
             e.printStackTrace();
         }

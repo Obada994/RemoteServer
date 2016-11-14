@@ -64,12 +64,11 @@ private Client auth(Socket connection) throws Exception {
     client.close();
     return null;
 }
-    /*
-        The main run method
-     */
-private void run()
+/*
+    Thread to wait for connections and listen to clients
+*/
+private void listen()
 {
-//***********************************************************************************************\\
     new Thread()// thread waiting for connections
     {
      public void run()
@@ -97,8 +96,9 @@ private void run()
              }
      }
     }.start(); // A thread to listen for connections
-//***************************************************************************************************\\
-
+}
+private void run()
+{
     BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
     String request,next;
     Scanner scan;
@@ -116,7 +116,7 @@ private void run()
             {
                 case "change-client":
                     index = Integer.parseInt(scan.next());
-                break;
+                    break;
                 case "upload-to":
                     //notify the client on the Client side to receive the file
                     clients[index].sendMsg(request);
@@ -169,11 +169,13 @@ private void run()
         e.printStackTrace();
     }
 }
-    public static void main(String[] args) throws Exception
-    {
-        Server server = new Server(1234);
-        //run to listen to clients and execute
-        server.run();
-    }
+public static void main(String[] args) throws Exception
+{
+    Server server = new Server(1234);
+    //listen for connections
+    server.listen();
+    //read input from user to send requests to clients
+    server.run();
+}
 
 }

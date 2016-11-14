@@ -38,10 +38,11 @@ import java.io.*;
         }
         String str="";
         //redirect the input and the error stream of the process to client
-        RedirectStream error = new RedirectStream(p.getErrorStream(),client);
+//        RedirectStream error = new RedirectStream(p.getErrorStream(),client);
         RedirectStream input = new RedirectStream(p.getInputStream(),client);
+
         //start the threads
-        error.start();
+//        error.start();
         input.start();
         try(PrintWriter pw = new PrintWriter(new OutputStreamWriter(p.getOutputStream()), true))
         {

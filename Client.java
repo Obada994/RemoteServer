@@ -73,6 +73,7 @@ import java.util.Scanner;
         byte[] encrypted = Utilities.encrypt(bytesEncoded);
         //send the encrypted array
         out.writeObject(encrypted);
+        out.flush();
         }
 
         /*
@@ -89,12 +90,21 @@ import java.util.Scanner;
         String title;
         String extension;
         String oldPath;
+        boolean cmd=false;
         String rx = "[^\"\\s]+|\"(\\\\.|[^\\\\\"])*\"";
         try {
-            while (!(request = getRequest()).equals(""))
-            {
+            while (!(request = getRequest()).equals("")) {
+                if (request.equals("Terminal closed...")) {
+                    cmd = false;
+                    System.out.println(request);
+                    continue;
+                }
+                if (cmd) {
+                    System.out.print(request);
+                    continue;
+                }
                 scan = new Scanner(request);
-                next = scan.findInLine(rx);
+                next = scan.next();
                 switch (next)
                 {
                     case "get":
@@ -107,11 +117,11 @@ import java.util.Scanner;
                         sendFile(filePath);
                         break;
                     case "get-dir":
-                        //zip the dir first,the zip folder will be created in the /tmp dir
+                        //the path of the dir we're going to upload
                         dirPath = scan.findInLine(rx);
-                        //get rid of the quotation marks
-                        dirPath.substring(1,dirPath.length()-1);
-                        //zip the dir to the tmp dir
+                        // get rid of quotation marks
+                        dirPath = dirPath.substring(1,dirPath.length()-1);
+                        //compress the dir
                         Utilities.zipDir(new File(dirPath),System.getProperty("java.io.tmpdir")+"/dir.zip");
                         //notify client to receive
                         filePathTitleExtension = request.substring(8,request.length());
@@ -175,11 +185,15 @@ import java.util.Scanner;
                         return 0;
                     case "cmd":
                         try {
+                            sendMsg("cmd-on");
                             new Executor(new String[]{System.getProperty("os.name"), System.getProperty("user.home")}, this);
                         }catch(Exception e)
                         {
                             System.out.println("Terminal error..");
                         }
+                        break;
+                    case "cmd-on":
+                        cmd=true;
                         break;
                     default:
                         System.out.println(request);
@@ -383,7 +397,7 @@ import java.util.Scanner;
                 if(!client.valid(request))
                     continue;
                 scan = new Scanner(request);
-                next = scan.findInLine(rx);
+                next = scan.next();
                 switch (next)
                 {
                     case "upload":
