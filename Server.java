@@ -130,7 +130,7 @@ private void run()
                 case "upload-dir-to":
                     //the path of the dir we're going to upload
                     dirPath = scan.findInLine(rx);
-                    // get rid of quatation marks
+                    // get rid of quotation marks
                     dirPath = dirPath.substring(1,dirPath.length()-1);
                     //compress the dir and save it in the working dir
                     Utilities.zipDir(new File(dirPath),System.getProperty("java.io.tmpdir")+"/dir.zip");
