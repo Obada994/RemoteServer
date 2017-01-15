@@ -1,6 +1,7 @@
 # MyCloud
 Make your laptop/PC  a server and access it, grant terminal access and transfer directories and files between clients.
 the connection is encrypted with AES 128 bit.
+client.java has two modes, run and stealth where run will make the client able to send and execute any commands on the server and stealth will make the client listen to the requests from the server only
 # Usage
 upload "dirpath_on_this_machine" titleOfTheFile(what's to be called on the server side) Extension
 upload-dir "dirpath_on_this_machine" titleOfTheDir(what's to be called on the server side) Extension(zip)
